@@ -11,6 +11,8 @@ let main _ =
   let parseA = parseChar 'a'
   let parseB = parseChar 'b'
   let parseAThenB = parseA .>>. parseB
-  run parseA "abc"
+  run parseAThenB "abc"
+  run parseAThenB "cba"
+  run parseAThenB "bac"
   
   0 // return an integer exit code
