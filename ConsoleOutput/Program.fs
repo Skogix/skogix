@@ -7,20 +7,8 @@ open Basics
 [<EntryPoint>]
 let main _ =
   Console.Clear()
-  let a = 'a'
-  let b = 'b'
-  let c = 'c'
+  let parseA = parseChar 'a'
+  let parseB = parseChar 'b'
+  let parseAThenB = parseA .>>. parseB
   
-  let parseA = parseChar a
-  let parseB = parseChar b
-  let parseC = parseChar c
-  
-  let abc = "abc"
-  let baba = "baba"
-  
-  printfn "char: %c input: %s output: %A" a abc (parseA abc)
-  printfn "char: %c input: %s output: %A" b abc (parseB abc)
-  printfn "char: %c input: %s output: %A" c abc (parseC abc)
-  printfn "char: %c input: %s output: %A" b baba (parseB baba)
-  printfn "char: %c input: %s output: %A" b baba (parseB "")
   0 // return an integer exit code
