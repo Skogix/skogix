@@ -22,4 +22,5 @@ let main _ =
   printfn "char: %c input: %s output: %A" b abc (parseB abc)
   printfn "char: %c input: %s output: %A" c abc (parseC abc)
   printfn "char: %c input: %s output: %A" b baba (parseB baba)
+  printfn "char: %c input: %s output: %A" b baba (parseB "")
   0 // return an integer exit code
