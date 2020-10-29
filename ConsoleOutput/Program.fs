@@ -9,9 +9,12 @@ let main _ =
 //  Console.Clear()
   let parseA = parseChar 'a'
   let parseB = parseChar 'b'
-  let parseAThenB = parseA .>>. parseB
-  printfn "%A" (run parseA "abc")
-  printfn "%A" (run parseA "bbb")
-  printfn "%A" (run parseAThenB "bac")
+  let parseC = parseChar 'c'
+  let parseBorC = parseB <|> parseC
+  let aAndThenBorC = parseA .>>. parseBorC
+  printfn "%A" (run aAndThenBorC "bac")
+  printfn "%A" (run aAndThenBorC "abc")
+  printfn "%A" (run aAndThenBorC "acb")
+  printfn "%A" (run aAndThenBorC "cab")
   
   0 // return an integer exit code

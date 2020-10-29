@@ -30,7 +30,7 @@ let run (parser) (input) =
   let (Parser runInnerFunction) = parser
   runInnerFunction input
 
-/// todo
+/// and-combinator
 /// vill kunna >> två parsers, typ parseA >> parseB
 /// så se till att output och input är samma och "låta fails" gå förbi
 /// todo kolla bind-lösning
@@ -57,3 +57,25 @@ let andThen parser1 parser2 =
 /// infix för andThen
 let ( .>>. ) = andThen
 
+/// or-combinator
+/// matcha a eller b
+///
+/// kör första
+///   om success, returna parseade och rest
+/// annars on fail
+///   kör andra parsern med orginalinput
+///   returna
+
+let orElse parser1 parser2 =
+  // kör 1, return om success
+  // annars return 2
+  let f input =
+    let result1 = run parser1 input
+    match result1 with
+    | Success _ -> result1
+    | Failure _ ->
+      let result2 = run parser2 input
+      result2
+  Parser f
+/// infix för orElse
+let ( <|> ) = orElse
