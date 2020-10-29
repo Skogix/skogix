@@ -9,6 +9,8 @@ let parseB = parseChar 'b'
 let parseC = parseChar 'c'
 let parseAThenB = parseA .>>. parseB
 let parseAorB = parseA <|> parseB
+let parseLowercase = anyOf ['a'..'z']
+let parseDigits = anyOf ['0'..'9']
 
 [<SetUp>]
 let Setup () =
@@ -29,3 +31,7 @@ let andThen () =
 let orElse () =
     Assert.AreEqual(run parseAorB "abc", Success('a', "bc"))
     Assert.AreEqual(run parseAorB "bac", Success('b', "ac"))
+[<Test>]
+let anyOf () =
+    Assert.AreEqual(run parseDigits "123abc", Success('1', "23abc"))
+    Assert.AreEqual(run parseLowercase "abc123", Success('a', "bc123"))
