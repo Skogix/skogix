@@ -10,6 +10,7 @@ type Parser<'T> = Parser of (string -> Result<'T * string>)
 
 module Basics =
   open System
+  open Common
   /// parsea en char från en str och mappa till parser
   /// char -> Parser<char>
   /// med curry
@@ -18,8 +19,10 @@ module Basics =
     let f (str:string) =
       match Seq.toList str with
         | first::rest ->
-          if first = charToParse then Success(charToParse, rest |> string)
-          else Failure(sprintf "Ville ha %c, fick %c" charToParse first)
+          if first = charToParse then
+            Success(charToParse, rest |> string)
+          else
+            Failure(sprintf "Ville ha %c, fick %c" charToParse first)
         | [] -> Failure ("Ingen mer input")
     Parser f
   /// "unwrapper" för parser, kör i princip sett bara inre funktionen i parsern som passats
