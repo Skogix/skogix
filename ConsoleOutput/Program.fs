@@ -7,14 +7,14 @@ open Basics
 [<EntryPoint>]
 let main _ =
 //  Console.Clear()
-  let parseA = parseChar 'a'
-  let parseB = parseChar 'b'
-  let parseC = parseChar 'c'
-  let parseBorC = parseB <|> parseC
-  let aAndThenBorC = parseA .>>. parseBorC
-  printfn "%A" (run aAndThenBorC "bac")
-  printfn "%A" (run aAndThenBorC "abc")
-  printfn "%A" (run aAndThenBorC "acb")
-  printfn "%A" (run aAndThenBorC "cab")
+  let parseLowercase = anyOf['a'..'z']
+  let parseDigit = anyOf['0'..'9']
   
+  printfn "%A" (run parseLowercase "aBC")
+  printfn "%A" (run parseLowercase "Abc")
+  printfn "%A" (run parseDigit "abc123")
+  printfn "%A" (run parseDigit "123abc")
+  
+  printfn "%A" (run parseLowercase "@abc123")
+  printfn "%A" (run parseDigit "@123abc")
   0 // return an integer exit code

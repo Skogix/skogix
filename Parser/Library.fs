@@ -79,3 +79,21 @@ let orElse parser1 parser2 =
   Parser f
 /// infix för orElse
 let ( <|> ) = orElse
+
+/// choice 
+/// kör orElse över en hel lista med combinators för att få choice
+///
+/// reducear och lägger in orElse mellan alla parsers i listan
+/// går igenom hela listan och returnar det som ger success eller
+/// sista om alla failat
+let choice listOfParsers =
+  List.reduce (<|>) listOfParsers
+
+/// anyOf
+/// ha en lista med alla bokstäver, transforma alla till parsers
+/// combinea alla med choice
+let anyOf listOfChars =
+  listOfChars
+  |> List.map parseChar
+  |> choice
+  
