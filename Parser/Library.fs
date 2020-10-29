@@ -1,4 +1,5 @@
 ﻿module Basics
+open System
 /// option i stil med some/none
 type Result<'a> =
   | Success of 'a
@@ -13,19 +14,18 @@ type Parser<'T> = Parser of (string -> Result<'T * string>)
 /// char -> str -> Parser<char>
 let parseChar charToParse =
   let f (str:string) =
-    // todo: kolla upp om det är något att vinna på implicit currying
-    // för just nu gör det bara att det är svårt att se på signatur vad som händer
-    // och behöver en unwrapper extra
-    match Seq.toList str with
-      | first::rest ->
-        if first = charToParse then
-          Success(charToParse, rest |> string)
-        else
-          Failure(sprintf "Ville ha %c, fick %c" charToParse first)
-      | [] -> Failure ("Ingen mer input")
+    if String.IsNullOrEmpty(str) then
+      Failure "Inge mer input"
+    else
+      let first = str.[0]
+      if first = charToParse then
+        let rest = str.[1..]
+        Success (charToParse, rest)
+      else
+        Failure (sprintf "Ville ha %c, fick %c" charToParse first)
   Parser f
 /// "unwrapper" för parser, kör i princip sett bara inre funktionen i parsern som passats
-let run (parser:Parser<'a>) (input:string): Result<'a * string> =
+let run (parser) (input) =
   // deconstructar parser precis som en (x,y) skulle deconstructa en tuple
   let (Parser runInnerFunction) = parser
   runInnerFunction input
@@ -41,7 +41,7 @@ let run (parser:Parser<'a>) (input:string): Result<'a * string> =
 ///   om fail, return
 /// om ingen fail, returna en tuple med båda parseade values
 
-let andThen (parser1:Parser<'a>) (parser2:Parser<'a>) =
+let andThen parser1 parser2 =
   let f input =
     let result1 = run parser1 input
     match result1 with
@@ -53,7 +53,7 @@ let andThen (parser1:Parser<'a>) (parser2:Parser<'a>) =
       | Success (v2, rest2) ->
         let newValue = (v1, v2)
         Success (newValue, rest2)
-  f
+  Parser f
 /// infix för andThen
 let ( .>>. ) = andThen
 
