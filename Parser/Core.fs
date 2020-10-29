@@ -77,19 +77,6 @@ let anyOf listOfChars =
   |> List.map parseChar
   |> choice
 /// map
-/// kan inte använda reduce för köra andThens för att parsea en hel string t.ex
-///   string
-///   |> Seq.map parseChar //gör till parsers
-///   |> Seq.reduce andThen
-/// för andThen har olika input mot output (tuple vs single)
-
-// test
-//let parseDigit = anyOf ['0'..'9']
-//let parseThreeDigits = parseDigit .>>.parseDigit .>>.parseDigit
-//run parseThreeDigits "123a" // Success ((('1', '2'), '3'), "a")
-/// returnar tuples så kan inte pipea vidare och är drygt att jobba med, vill ha en string "123", "a"
-///
-/// i curry-innerfunktionen kör och få resultat
 /// if success, kör funktionen och returna ny mappad value
 /// mappar a -> b till parser<a> -> parser<b>
 let mapParse f parser =
@@ -105,15 +92,29 @@ let mapParse f parser =
 let ( <!> ) = mapParse
 /// infix av mapParse men reversead för pipelineing
 let ( |>> ) x f = mapParse f x
-//// test
-//let parseDigit = anyOf ['0'..'9']
-///// returnar en parser<string>
-//let parseThreeDigitsAsString =
-//  let tupleParser = parseDigit .>>.parseDigit .>>.parseDigit
-//  // gör om den till en string
-//  let transformTuple ((c1, c2), c3) = String [|c1;c2;c3|]
-//  mapParse transformTuple tupleParser
-//run parseThreeDigitsAsString "123a" //val it : Result<String * string> = Success ("123", "a")
-//// är mappad nu till parser<int>
-//let parseThreeDigitsAsInt = mapParse int parseThreeDigitsAsString
-//run parseThreeDigitsAsInt "123a"  //val it : Result<int * string> = Success (123, "a")
+
+/// returnParser
+/// transform en normal value till parser, t.ex a -> parser<a>
+/// tänk en map fast för values och inte funktioner
+/// applyParser
+/// transformar en parser som har en funktion, t.ex parser<a->b> -> parser<a> -> parser<b>
+let returnParser value =
+  let f input = Success (value, input)
+  Parser f
+let applyParser fParser valueParser =
+  // gör ett parser-par / tuple (f,value)
+  (fParser .>>.valueParser)
+  // mappa genom att köra f x
+  |> mapParse (fun (f,v) -> f v)
+let ( <*> ) = applyParser
+// mapParse kan bara mappa funktioner med en parameter
+// return/apply funkar som helpers, t.ex
+let lift2 f xParser yParser =
+  returnParser f <*> xParser <*> yParser
+let lift3 f xParser yParser zParser =
+  returnParser f <*> xParser <*> yParser <*> zParser
+// t.ex
+let addParser = lift2 (+)
+let startWith (str:string) (prefix:char) = str.StartsWith(prefix)
+let startsWithParser = lift2 startWith
+// lyfter alla values av parsern rakt av
