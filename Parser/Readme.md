@@ -25,5 +25,24 @@ __parseChar__ >> __choice__
 __returnParser__ `a -> Parser<'a>`<br />
 höjer en value till en parser
 
-__applyParser__ `Parser<('a -> 'b)> -> Parser<'a> -> Parser<'b>`<br />
-kör en (a->b)-parser på en value 
+__<*>__ `Parser<('a -> 'b)> -> Parser<'a> -> Parser<'b>`<br />
+__applyParser__ : kör en (a->b)-parser på en value 
+
+######ExempelFunktioner
+```f# script
+let parseDigit = anyOf ['0'..'9']
+let parseThreeDigitsAsStr =
+    (parseDigit .>>. parseDigit .>>. parseDigit)
+    |>> fun ((c1, c2), c3) -> String [|c1;c2;c3|]
+let parseThreeDigitsAsInt = mapParse int parseThreeDigitsAsStr
+// ('a -> 'b -> 'c) -> Parser<'a> -> Parser<'b> -> Parser<'c>
+let lift2 f aValue bValue = returnParser f <*> aValue <*> bValue
+// ('a -> 'b -> 'c -> 'd) -> Parser<'a> -> Parser<'b> -> Parser<'c> -> Parser<'d>
+let lift3 f aValue bValue cValue = returnParser f <*> aValue <*> bValue <*> cValue
+// Parser<int> -> Parser<int> -> Parser<int>
+let addParser = lift2 (+)
+// string -> char -> bool
+let startWith (str:string) (prefix:char) = str.StartsWith(prefix)
+// Parser<string> -> Parser<char> -> Parser<bool>
+let startsWithParser = lift2 startWith
+```

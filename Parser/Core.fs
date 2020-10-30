@@ -107,14 +107,7 @@ let applyParser fParser valueParser =
   // mappa genom att köra f x
   |> mapParse (fun (f,v) -> f v)
 let ( <*> ) = applyParser
-//// mapParse kan bara mappa funktioner med en parameter
-//// return/apply funkar som helpers, t.ex
-//let lift2 f xParser yParser =
-//  returnParser f <*> xParser <*> yParser
-//let lift3 f xParser yParser zParser =
-//  returnParser f <*> xParser <*> yParser <*> zParser
-//// t.ex
-//let addParser = lift2 (+)
-//let startWith (str:string) (prefix:char) = str.StartsWith(prefix)
-//let startsWithParser = lift2 startWith
-//// lyfter alla values av parsern rakt av
+// mapParse kan bara mappa funktioner med en parameter
+// return/apply funkar som helpers, t.ex
+let lift2 f xParser yParser =
+  returnParser f <*> xParser <*> yParser
