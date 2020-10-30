@@ -122,15 +122,9 @@ let rec seqParsers ps =
   | [] -> returnParser []
   | first::rest -> consParser first (seqParsers rest)
 
-/// parsea en string
-///
-/// gör om string till chars
-/// mappa till parser<char>
-/// kör seqParsers för parser<char> -> parser<char list>
-/// mappa tillbaka parser<char list> -> parser<string>
-
-let mapCharsToStr cs = String(List.toArray cs)
+/// mappar string -> parser
 let parseString (str:seq<char>) =
+  let mapCharsToStr cs = String(List.toArray cs)
   // seq<char>
   str
   // char list
@@ -141,9 +135,26 @@ let parseString (str:seq<char>) =
   |> seqParsers
   // parser<string>
   |> mapParse mapCharsToStr
-  
-// test
-let parseABC = parseString "abc x1"
-run parseABC "abc x1de"
-run parseABC "axxxx"
-run parseABC "a|htneuaoss"
+
+/// parsea något tills fail / kör tills något hittas eller failar
+/// t.ex läsa in siffror till en viss char typ ./, eller failar att hitta fler
+/// en för "ingen eller fler" och en för "minst en"
+///
+/// kör parsern
+/// if fail -> [] så är aldrig failure
+/// if success loopa
+
+let rec parseMoreThanOne p input =
+  let result1 = run p input
+  match result1 with
+  | Failure _ -> ([], input)
+  // (valuen som parseas, resten av input 1)
+  | Success (firstValue, restInputAfterFirstParse) ->
+    // (resten av alla values från innan, resten av input 2)
+    let (restValues, restInput) =
+      // kör så länge det är success
+      parseMoreThanOne p restInputAfterFirstParse
+    // skicka ut nya values när det kommer hit
+    let values = firstValue::restValues
+    // (alla values som hittades, resten efter fail)
+    (values, restInput)
