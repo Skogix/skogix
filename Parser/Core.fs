@@ -122,7 +122,10 @@ let rec seqParsers ps =
   | [] -> returnParser []
   | first::rest -> consParser first (seqParsers rest)
 
-// test
-let parsers = [parseChar 'a'; parseChar 'b'; parseChar 'c']
-let parserss = seqParsers parsers
-run parserss "abcd"
+/// parsea en string
+///
+/// gör om string till chars
+/// mappa till parser<char>
+/// kör seqParsers för parser<char> -> parser<char list>
+/// mappa tillbaka parser<char list> -> parser<string>
+
