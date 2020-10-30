@@ -97,11 +97,11 @@ let ( |>> ) x f = mapParse f x
 /// returnParser
 /// transform en normal value till parser, t.ex a -> parser<a>
 /// tänk en map fast för values och inte funktioner
-/// applyParser
-/// transformar en parser som har en funktion, t.ex parser<a->b> -> parser<a> -> parser<b>
 let returnParser a =
   let inF b = Success (a, b)
   Parser inF
+/// applyParser
+/// transformar en parser som har en funktion, t.ex parser<a->b> -> parser<a> -> parser<b>
 let applyParser fParser xParser =
   // gör ett parser-par / tuple (f,value)
   (fParser .>>. xParser)
@@ -112,8 +112,7 @@ let ( <*> ) = applyParser
 // return/apply funkar som helpers, t.ex
 let lift2 f aParser bParser =
   returnParser f <*> aParser <*> bParser
-
-/// tar en lista med parsers och mappar till en stor parser
+/// tar en lista med parsers och mappar till en större parser
 let rec seqParsers ps =
   // todo: hemmagjort consfunktion, kolla om det går att göra snyggae
   let splitCons first rest = first::rest
@@ -122,7 +121,6 @@ let rec seqParsers ps =
   match ps with
   | [] -> returnParser []
   | first::rest -> consParser first (seqParsers rest)
-
 /// mappar string -> parser
 let parseString (str:seq<char>) =
   let mapCharsToStr cs = String(List.toArray cs)
@@ -136,15 +134,12 @@ let parseString (str:seq<char>) =
   |> seqParsers
   // parser<string>
   |> mapParse mapCharsToStr
-
 /// parsea något tills fail / kör tills något hittas eller failar
 /// t.ex läsa in siffror till en viss char typ ./, eller failar att hitta fler
 /// en för "ingen eller fler" och en för "minst en"
-///
 /// kör parsern
 /// if fail -> [] så är aldrig failure
 /// if success loopa
-
 let rec parseMoreThanOne p input =
   let result1 = run p input
   match result1 with
