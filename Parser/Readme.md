@@ -11,7 +11,7 @@ __<|>__ `Parser<'a> -> Parser<'a> -> Parser<'a>`<br />
 __orElse__ : or-combinator
 
 __<!>__ `('a -> 'b) -> Parser<'a> -> Parser<'b>`<br />
-__mapParse__ : kör en funktion (a->b) som transformar parser<a> -> parser<b>
+__mapParse__ : kör en funktion (a->b) som transformar parser<a> -> parser<br />
 
 __|>>__ `Parser<'a> -> ('a -> 'b) -> Parser<'b>`<br />
 __mapParse__ : reversed för enklare pipeing
