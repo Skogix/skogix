@@ -197,3 +197,34 @@ let parseInt =
   let digits = many1 digit
   oneOrZero (parseChar '-') .>>. digits
   |>> resultToInt
+/// kasta iväg resultat
+/// "xxx" behöver inte ha "", samma med slutar med ;, mellanslag osv
+/// >>. behåller höger, .>> behåller vänster
+let (.>>) p1 p2 = p1 .>>. p2 |> mapParse (fun (a,_) -> a)
+let (>>.) p1 p2 = p1 .>>. p2 |> mapParse (fun (_,b) -> b)
+let between p1 p2 p3 = p1 >>. p2 .>> p3
+/// listor
+/// gör en parser av [ , osv + vad man letar efter sen kasta bort separator
+/// leta med many
+/// kombinera resultaten
+let separatedByOne p sep =
+  let sepThenParse = sep >>. p
+  p .>>. many sepThenParse
+  |>> fun (p, ps) -> p::ps
+let separateBy p sep =
+  separatedByOne p sep <|> returnParser []
+//test
+let dot = parseChar ','
+let digit = anyOf ['0'..'9']
+
+let zeroOrMoreDigitList = separateBy digit dot
+let oneOrMoreDigitList = separatedByOne digit dot
+run oneOrMoreDigitList "1;"      // Success (['1'], ";")
+run oneOrMoreDigitList "1,2;"    // Success (['1'; '2'], ";")
+run oneOrMoreDigitList "1,2,3;"  // Success (['1'; '2'; '3'], ";")
+run oneOrMoreDigitList "Z;"      // Failure "Expecting '9'. Got 'Z'"
+
+run zeroOrMoreDigitList "1;"     // Success (['1'], ";")
+run zeroOrMoreDigitList "1,2;"   // Success (['1'; '2'], ";")
+run zeroOrMoreDigitList "1,2,3;" // Success (['1'; '2'; '3'], ";")
+run zeroOrMoreDigitList "Z;"     // Success ([], "Z;")
