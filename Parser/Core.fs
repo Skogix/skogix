@@ -1,5 +1,6 @@
 ﻿module Basics
 open System
+open System.Collections.Concurrent
 /// resultatet av en parseing, returnar det du parsear om success annars en errorstring
 type Result<'a> =
   | Success of 'a
@@ -178,26 +179,21 @@ let many1 p =
       let values = x::xs
       Success (values, restOut)
   Parser inF
+let oneOrZero p =
+  let some = p |>> Some
+  let none = returnParser None
+  some <|> none
 /// parsea en int
 /// gör en parser
 /// kör many1 för att få en lista
 /// mappa listan med digts till string sen till int
 let parseInt =
-  let resultToInt ns = String(List.toArray ns) |> int
+  let resultToInt (sign, cs) =
+    let i = String(List.toArray cs) |> int
+    match sign with
+    | Some _ -> -i // gör negativ
+    | None -> i
   let digit = anyOf ['0'..'9']
   let digits = many1 digit
-  digits
-  |> mapParse resultToInt
-/// oneOrZero
-/// hämta - till negativa nummer, ./, osv
-/// en som returnar some, en som returnar none
-/// option
-let oneOrZero p =
-  let some = p |>> Some
-  let none = returnParser None
-  some <|> none
-//test
-let digit = anyOf ['0'..'9']
-let digitThenSemicolon = digit .>>.oneOrZero (parseChar ';')
-run digitThenSemicolon "1;"
-run digitThenSemicolon "12;"
+  oneOrZero (parseChar '-') .>>. digits
+  |>> resultToInt
