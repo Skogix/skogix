@@ -129,3 +129,15 @@ let rec seqParsers ps =
 /// kör seqParsers för parser<char> -> parser<char list>
 /// mappa tillbaka parser<char list> -> parser<string>
 
+let mapCharsToStr cs = String(List.toArray cs)
+let parseString (str:seq<char>) =
+  // seq<char>
+  str
+  // char list
+  |> List.ofSeq
+  // parser<char>
+  |> List.map parseChar
+  // parser<char list>
+  |> seqParsers
+  // parser<string>
+  |> mapParse mapCharsToStr
