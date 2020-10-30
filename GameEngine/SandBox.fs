@@ -14,7 +14,21 @@ let replyAsyncAgent =
     let rec loop () =
       async {
         let! (msg, replyChannel) = inbox.Receive()
-        replyChannel.Reply (sprintf "tog emot: %s" msg)
+        replyChannel.Reply (sprintf "svarar på: %s" msg)
         do! loop ()
       }
     loop ())
+// måste få ett Hello för att svara
+let whileTrueAgentWithScan =
+  MailboxProcessor.Start(fun inbox ->
+    async {
+      while true do
+        do! inbox.Scan (fun hello ->
+          match hello with
+          | "Hello" -> Some(async{printfn "hello back"})
+          | _ -> None
+          )
+        let! msg = inbox.Receive()
+        printfn "vanligt msg: %s" msg
+    }
+    )
