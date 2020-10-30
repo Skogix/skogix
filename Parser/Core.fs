@@ -213,18 +213,17 @@ let separatedByOne p sep =
   |>> fun (p, ps) -> p::ps
 let separateBy p sep =
   separatedByOne p sep <|> returnParser []
-//test
-let dot = parseChar ','
-let digit = anyOf ['0'..'9']
-
-let zeroOrMoreDigitList = separateBy digit dot
-let oneOrMoreDigitList = separatedByOne digit dot
-run oneOrMoreDigitList "1;"      // Success (['1'], ";")
-run oneOrMoreDigitList "1,2;"    // Success (['1'; '2'], ";")
-run oneOrMoreDigitList "1,2,3;"  // Success (['1'; '2'; '3'], ";")
-run oneOrMoreDigitList "Z;"      // Failure "Expecting '9'. Got 'Z'"
-
-run zeroOrMoreDigitList "1;"     // Success (['1'], ";")
-run zeroOrMoreDigitList "1,2;"   // Success (['1'; '2'], ";")
-run zeroOrMoreDigitList "1,2,3;" // Success (['1'; '2'; '3'], ";")
-run zeroOrMoreDigitList "Z;"     // Success ([], "Z;")
+/// bind
+/// input är diagonalt (a -> parser<b>)
+/// output är horisontell (parser<a> -> parser<b>)
+let bindParser f p =
+  let inF str =
+    let result1 = run p str
+    match result1 with
+    | Failure err -> Failure err
+    | Success (firstIn, restIn) ->
+      let p2 = f firstIn
+      run p2 restIn
+  Parser inF
+/// infix av bindParser
+let ( >>= ) p f = bindParser f p
