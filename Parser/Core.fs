@@ -149,15 +149,15 @@ let rec parseMoreThanOne p input =
   match result1 with
   | Failure _ -> ([], input)
   // (valuen som parseas, resten av input 1)
-  | Success (firstValue, restInputAfterFirstParse) ->
+  | Success (x, restIn) ->
     // (resten av alla values från innan, resten av input 2)
-    let (restValues, restInput) =
+    let (xs, restOut) =
       // kör så länge det är success
-      parseMoreThanOne p restInputAfterFirstParse
+      parseMoreThanOne p restIn
     // skicka ut nya values när det kommer hit
-    let values = firstValue::restValues
+    let values = x::xs
     // (alla values som hittades, resten efter fail)
-    (values, restInput)
+    (values, restOut)
 /// many är bara en wrapper
 let many p =
   let rec inF str =
@@ -172,15 +172,12 @@ let many1 p =
     let result1 = run p str
     match result1 with
     | Failure err -> Failure err
-    | Success (firstValue, inputAfterFirstParse) ->
-      let(subsequentValues, remainingInput) =
-        parseMoreThanOne p inputAfterFirstParse
-      let values = firstValue::subsequentValues
-      Success (values, remainingInput)
+    | Success (x, restIn) ->
+      let(xs, restOut) =
+        parseMoreThanOne p restIn
+      let values = x::xs
+      Success (values, restOut)
   Parser inF
 
-let digit = anyOf ['0'..'9']
-let digits = many1 digit
-run digits "123131uehoatnsn"
-run digits "a123131uehoatnsn"
-run digits "1ahtn1"
+let skogix = parseString "skogix"
+run skogix "skogix"
