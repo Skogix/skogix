@@ -178,6 +178,17 @@ let many1 p =
       let values = x::xs
       Success (values, restOut)
   Parser inF
-
-let skogix = parseString "skogix"
-run skogix "skogix"
+/// parsea en int
+/// gör en parser
+/// kör many1 för att få en lista
+/// mappa listan med digts till string sen till int
+let parseInt =
+  let resultToInt ns = String(List.toArray ns) |> int
+  let digit = anyOf ['0'..'9']
+  let digits = many1 digit
+  digits
+  |> mapParse resultToInt
+//test
+run parseInt "1abc"
+run parseInt "12abc"
+run parseInt "123abc"
