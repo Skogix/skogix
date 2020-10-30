@@ -45,4 +45,9 @@ let addParser = lift2 (+)
 let startWith (str:string) (prefix:char) = str.StartsWith(prefix)
 // Parser<string> -> Parser<char> -> Parser<bool>
 let startsWithParser = lift2 startWith
+// Parser<char>
+let whitespaceChar = anyOf [' '; '\t'; '\n']
+// Parser<char list>
+let whitespace = many whitespaceChar
+
 ```

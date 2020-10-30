@@ -164,3 +164,23 @@ let many p =
     // parsea input och wrappa i success
     Success(parseMoreThanOne p str)
   Parser inF
+/// kör, if fail -> fail
+/// if succ kör parsemorethanone
+/// consa och returna
+let many1 p =
+  let rec inF str =
+    let result1 = run p str
+    match result1 with
+    | Failure err -> Failure err
+    | Success (firstValue, inputAfterFirstParse) ->
+      let(subsequentValues, remainingInput) =
+        parseMoreThanOne p inputAfterFirstParse
+      let values = firstValue::subsequentValues
+      Success (values, remainingInput)
+  Parser inF
+
+let digit = anyOf ['0'..'9']
+let digits = many1 digit
+run digits "123131uehoatnsn"
+run digits "a123131uehoatnsn"
+run digits "1ahtn1"
