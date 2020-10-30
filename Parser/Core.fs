@@ -158,3 +158,9 @@ let rec parseMoreThanOne p input =
     let values = firstValue::restValues
     // (alla values som hittades, resten efter fail)
     (values, restInput)
+/// many är bara en wrapper
+let many p =
+  let rec inF str =
+    // parsea input och wrappa i success
+    Success(parseMoreThanOne p str)
+  Parser inF
