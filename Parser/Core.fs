@@ -141,3 +141,9 @@ let parseString (str:seq<char>) =
   |> seqParsers
   // parser<string>
   |> mapParse mapCharsToStr
+  
+// test
+let parseABC = parseString "abc x1"
+run parseABC "abc x1de"
+run parseABC "axxxx"
+run parseABC "a|htneuaoss"
