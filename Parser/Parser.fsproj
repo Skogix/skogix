@@ -5,7 +5,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Common.fs" />
         <Compile Include="Core.fs" />
         <Content Include="Readme.md" />
     </ItemGroup>
