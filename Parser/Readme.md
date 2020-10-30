@@ -16,11 +16,11 @@ __mapParse__ : kör en funktion (a->b) som transformar parser<a> -> parser<br />
 __|>>__ `Parser<'a> -> ('a -> 'b) -> Parser<'b>`<br />
 __mapParse__ : reversed för enklare pipeing
 
-__choice__ `Parser<a'> list -> Parser<'a>`<br />
+__chooseOne__ `Parser<a'> list -> Parser<'a>`<br />
 returnar första success som hittas
 
 __anyOf__ `char list -> Parser<char>`<br />
-__parseChar__ >> __choice__
+__parseChar__ >> __chooseOne__
 
 __returnParser__ `a -> Parser<'a>`<br />
 höjer en value till en parser
