@@ -188,7 +188,16 @@ let parseInt =
   let digits = many1 digit
   digits
   |> mapParse resultToInt
+/// oneOrZero
+/// hämta - till negativa nummer, ./, osv
+/// en som returnar some, en som returnar none
+/// option
+let oneOrZero p =
+  let some = p |>> Some
+  let none = returnParser None
+  some <|> none
 //test
-run parseInt "1abc"
-run parseInt "12abc"
-run parseInt "123abc"
+let digit = anyOf ['0'..'9']
+let digitThenSemicolon = digit .>>.oneOrZero (parseChar ';')
+run digitThenSemicolon "1;"
+run digitThenSemicolon "12;"
