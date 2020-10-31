@@ -7,7 +7,15 @@ module Core =
     startPosition: Position
     startDirection: Direction
   }
-  type Renderer = Snake -> unit
+  type Renderer = {
+    GameState: (Snake -> unit)
+    Debug: (string -> unit)
+    Pause: (unit)
+    }
+  type GameState =
+    | Running
+    | GameOver
+    | Paused of bool
   type GameInit = {
     initSnake: Snake
     initDir: Direction
@@ -18,6 +26,8 @@ module Core =
     | Move
     | ChangeDirection of Direction
     | AddTail
+    | Die
+    | Pause 
   type MoveHead = Position -> Direction -> Snake
   type GetTail = Snake -> Snake // oklart om det behövs
   type GetHead = Snake -> Position
@@ -51,28 +61,38 @@ module Game =
       | Right -> getNewPos head Right
     newHead::tail
   let createGame (init:GameInit) =
+    let mutable gameState = Running
+    let debug = init.renderer.Debug
+    let output = init.renderer.GameState
     let gameAgent =
       MailboxProcessor.Start(fun inbox ->
         let rec loop (snake:Snake) (dir:Direction) = async {
-          init.renderer snake
+          output snake
           let! action = inbox.Receive()
           match action with
           | Move ->
-            printfn "move"
+            debug "move"
             let newSnake = moveSnake snake dir false
             return! loop newSnake dir
           | ChangeDirection newDir ->
-            printfn "changedir: %A" newDir
+            debug (sprintf "newDir %A" newDir)
             return! loop snake newDir
           | AddTail ->
-            printfn "addtail"
+            debug "addtail"
             let newSnake = moveSnake snake dir true
             return! loop newSnake dir
-            
+          | Die ->
+            debug "gameover"
+            gameState <- GameOver 
+            return ()
+          | Pause ->
+            debug "pause"
+            gameState <- Paused true
+            return! loop snake dir
         }
         loop init.initSnake init.initDir
         )
-    gameAgent
+    gameAgent, gameState
   let startGame (config:Config) (renderer:Renderer) (commandStream) =
     /// set gameInit
     let gameInit = {
@@ -80,19 +100,25 @@ module Game =
       initDir = config.startDirection
       renderer = renderer }
     /// get gameAgent från createGame
-    let gameAgent = createGame gameInit
+    let gameAgent, gameState = createGame gameInit
     /// rec loop
     let rec gameLoop () =
       async {
+        match gameState with
+        | Running ->
+          
     ///  async.sleep x
-        do! Async.Sleep 500
-    ///  gameAgent.post move
-        gameAgent.Post Move
-        return! gameLoop ()
+          do! Async.Sleep 500
+      ///  gameAgent.post move
+          gameAgent.Post Move
+          return! gameLoop ()
+        | Paused b -> return! gameLoop()
       }
     gameLoop () |> Async.StartImmediate
     /// run loop
     /// subscribe commandstream till gameAgent.post
     commandStream
     |> Observable.subscribe gameAgent.Post
+    
+    gameState
   

@@ -1,12 +1,13 @@
 ﻿// Learn more about F# at http://fsharp.org
 
 open System
+open System.Diagnostics
 open Snake.Core
 
 type Output =
   | Debug
   | Playing
-let output = Playing
+let output = Debug
 [<EntryPoint>]
 let main _ =
   Console.Clear()
@@ -23,14 +24,16 @@ let main _ =
     Console.SetCursorPosition(pos.x, pos.y)
     Console.Write('#')
     
-  let drawSnake = List.iter drawChar 
-  let renderer s =
-    match output with
-    | Debug ->
-      printfn "%A" s
-    | Playing ->
-      Console.Clear()
-      drawSnake s
+  let drawSnake = List.iter drawChar
+  let printGameState = drawSnake
+  let printDebug = printfn "%s"
+  let printPauseMenu =
+    Console.Clear()
+    printfn "Paused"
+  let renderer:Renderer =
+    { GameState = printGameState
+      Debug = printDebug
+      Pause = printPauseMenu}
   let game = Snake.Game.startGame config renderer commandstream
   let rec getInput() =
     match Console.ReadKey(true).KeyChar with
@@ -39,6 +42,8 @@ let main _ =
     | 'a' -> ChangeDirection Left |> sendCommand
     | 'e' -> ChangeDirection Right |> sendCommand
     | ' ' -> AddTail |> sendCommand
+    | 'x' -> Die |> sendCommand
+    | 'p' -> Pause |> sendCommand
     getInput()
   getInput()
   0 // return an integer exit code
