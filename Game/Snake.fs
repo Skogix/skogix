@@ -27,9 +27,27 @@ module Core =
   
 module Game =
   open Core
-  let getPos (pos:Position) (dir:Direction) = pos
+  let getNewPos (pos:Position) (dir:Direction) =
+    match dir with
+    | Up -> {pos with y = pos.y - 1}
+    | Down -> {pos with y = pos.y + 1}
+    | Left -> {pos with x = pos.x - 1}
+    | Right -> {pos with x = pos.x + 1}
   let getHead (snake:Snake): Position = snake.Head
-  let moveSnake (snake:Snake) (dir:Direction): Snake = snake
+  let getTail (snake:Snake): Snake =
+    snake
+    |> List.take (snake.Length - 1)
+  let moveSnake (snake:Snake) (dir:Direction): Snake =
+    let head = getHead snake
+    let tail = getTail snake
+    let newHead =
+      match dir with
+      | Up -> getNewPos head Up
+      | Down -> getNewPos head Down
+      | Left -> getNewPos head Left
+      | Right -> getNewPos head Right
+    newHead::tail
+    
   let createGame (init:GameInit) =
     /// gameagent -> gameagent
     let gameAgent =

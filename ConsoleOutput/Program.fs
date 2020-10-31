@@ -24,5 +24,12 @@ let main _ =
     printfn "%A" s
 //    printfn "render snake"
   let game = Snake.Game.startGame config renderer commandstream
-  Console.ReadKey() |> ignore
+  let rec getInput () =
+    match Console.ReadKey(true).KeyChar with
+    | ',' -> sendCommand (ChangeDirection Up)
+    | 'o' -> sendCommand (ChangeDirection Down)
+    | 'a' -> sendCommand (ChangeDirection Left)
+    | 'e' -> sendCommand (ChangeDirection Right)
+    getInput ()
+  getInput()
   0 // return an integer exit code
