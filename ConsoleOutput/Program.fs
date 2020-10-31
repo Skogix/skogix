@@ -1,7 +1,6 @@
 ﻿// Learn more about F# at http://fsharp.org
 
 open System
-open ConsoleInput
 open ConsoleOutput
 open GameEngine
 open GameEngine.Domain
@@ -11,14 +10,21 @@ let main _ =
   Console.Clear()
   Console.CursorVisible <- false
   
-  let output:OutputStream = {
-    PrintGameState = Ui.GameState
-    PrintDebugInformation = Ui.Debug}
-//  let sendInput, inputstream =
-//    let event = Event<_>()
-//    event.Trigger, event.Publish
-  let game = CreateGame.Game(output)
-  let huhu = game.Start
+  let outputStream:OutputStream = {
+    GameState = Ui.GameState
+    Debug = Ui.Debug}
+  let sendInput, inputstream =
+    let event = Event<_>()
+    event.Trigger, event.Publish
+  let input = CreateGame.game outputStream
+  StartGame.StartGame outputStream inputstream
+  input "Move Up"
+  let rec getInput() =
+    let consoleInput = Console.ReadLine()
+    input consoleInput
+    getInput()
+  getInput()
+  
 //  let input = game.Input
 //  let output = game.Output
 //  let huhu = game.Start

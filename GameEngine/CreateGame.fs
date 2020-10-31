@@ -1,11 +1,8 @@
 module GameEngine.CreateGame
-open System
-open System.ComponentModel.Design
 open Domain
 open GameEngine
-open Output
 open Input
-open GameEngine
+open Command
 
 let PlayerInit:Player = {
   Name = "Skogix"
@@ -17,13 +14,18 @@ let GameStateInit:GameState = {
 let WorldInit: World = {
   Game = GameStateInit
 }
-let createGame output =
+let outputAgent(outputstream:OutputStream) =
+  let outGameState = outputstream.GameState
+  let outDebug = outputstream.Debug
+  MailboxProcessor.Start(fun inbox ->
+    let rec loop() = async {
+      let! output = inbox.Receive()
+      outDebug "Test från outputagent"
+      return! loop()
+    }
+    loop()
+    )
+let game(outputStream:OutputStream) =
+//  let Output = outputAgent(outputStream)
+  let Input = inputAgent(outputStream)
   Input.Post
-//type Game (outputStream:OutputStream) =
-//  static member Output = Output.Output
-//  member this.Start =
-//    Observable.subscribe Input.Input.Post
-//  let sendInput, inputstream =
-//    let event = Event<_>()
-//    event.Trigger, event.Publish
-  

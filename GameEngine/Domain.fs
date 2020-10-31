@@ -18,7 +18,10 @@ module Domain =
     Game: GameState
   }
   type InputStream = IObservable<string>
+  type Output =
+    | GameState of GameState
+    | Debug of string
   type OutputStream = {
-    PrintGameState: (GameState -> unit)
-    PrintDebugInformation: (string -> unit)
+    GameState: (GameState -> unit)
+    Debug: (string -> unit)
   }

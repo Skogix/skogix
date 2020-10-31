@@ -7,8 +7,12 @@ open GameEngine.Domain
 //  
 //  inputStream
 //  |> Observable.subscribe inputManager.Post |> ignore
+//let StartGame (output:OutputStream) inputStream =
+//  let inputManager = CreateGame.createGame output
+//  inputStream
+//  |> Observable.subscribe inputManager.Post |> ignore
+//  0
 let StartGame (output:OutputStream) inputStream =
-  let inputManager = CreateGame.createGame output
+  let apiInput = game output
   inputStream
-  |> Observable.subscribe inputManager.Post |> ignore
-  0
+  |> Observable.subscribe apiInput |> ignore

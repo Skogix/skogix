@@ -1,7 +1,5 @@
 module Sandbox.Rpg1
 
-open System
-open System.Diagnostics.Tracing
 
 type Position = {x:int;y:int}
 type Name = string
