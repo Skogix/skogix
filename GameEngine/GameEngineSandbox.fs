@@ -1,4 +1,4 @@
-module GameEngine.SandBox
+module GameEngine.GameEngineSandbox
 
 
 // mest basic agent som går att göra
