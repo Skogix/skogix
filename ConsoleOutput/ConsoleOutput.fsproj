@@ -13,6 +13,7 @@
       <ProjectReference Include="..\GameEngine\GameEngine.fsproj" />
       <ProjectReference Include="..\Game\Game.fsproj" />
       <ProjectReference Include="..\Parser\Parser.fsproj" />
+      <ProjectReference Include="..\Sandbox\Sandbox.fsproj" />
     </ItemGroup>
 
 </Project>

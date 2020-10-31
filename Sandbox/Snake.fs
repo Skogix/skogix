@@ -1,4 +1,4 @@
-﻿namespace Snake
+﻿namespace Sandbox.Snake
 module Core =
   type Position = {x:int; y:int}
   type Body = Position list

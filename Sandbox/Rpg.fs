@@ -1,4 +1,4 @@
-module Game.Rpg
+module Sandbox.Rpg1
 
 open System
 open System.Diagnostics.Tracing

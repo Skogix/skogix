@@ -1,2 +1,2 @@
-﻿namespace GameEngine
+module GameEngine.Core
 

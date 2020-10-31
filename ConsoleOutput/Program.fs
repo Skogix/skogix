@@ -3,7 +3,8 @@
 open System
 open System.Diagnostics
 open System.Net.Mail
-open Game.Rpg
+open GameEngine
+open Sandbox.Rpg1
 
 type Output =
   | Debug
@@ -14,31 +15,36 @@ let output = Debug
 let main _ =
   Console.Clear()
   Console.CursorVisible <- false
-  let showTileMap x =
-//    Console.Clear()
-    printfn "printtilemap: %A" x
-    
-  let showDebug = printfn "%A"
-  let renderer:Renderer = { PrintTileMap = showTileMap
-                            PrintDebug = showDebug}
-  let sendCommand, commandStream =
-    let e = Event<_>()
-    e.Trigger, e.Publish
-  let huhu = StartGame renderer commandStream
-  let rec getInput() =
-    match Console.ReadKey(true).KeyChar with
-    | ',' -> MovePlayer Up |> sendCommand
-    | 'o' -> MovePlayer Down |> sendCommand
-    | 'a' -> MovePlayer Left |> sendCommand
-    | 'e' -> MovePlayer Right |> sendCommand
-    | 'p' -> Pause |> sendCommand
-    | _ -> ()
-    getInput()
-  getInput()
-  Console.ReadKey(true) |> ignore
+  
+  
+  
+  Console.ReadKey() |> ignore
   0
-  
-  
+//  let showTileMap x =
+////    Console.Clear()
+//    printfn "printtilemap: %A" x
+//    
+//  let showDebug = printfn "%A"
+//  let renderer:Renderer = { PrintTileMap = showTileMap
+//                            PrintDebug = showDebug}
+//  let sendCommand, commandStream =
+//    let e = Event<_>()
+//    e.Trigger, e.Publish
+//  let huhu = StartGame renderer commandStream
+//  let rec getInput() =
+//    match Console.ReadKey(true).KeyChar with
+//    | ',' -> MovePlayer Up |> sendCommand
+//    | 'o' -> MovePlayer Down |> sendCommand
+//    | 'a' -> MovePlayer Left |> sendCommand
+//    | 'e' -> MovePlayer Right |> sendCommand
+//    | 'p' -> Pause |> sendCommand
+//    | _ -> ()
+//    getInput()
+//  getInput()
+//  Console.ReadKey(true) |> ignore
+//  0
+//  
+//  
 //  
 //  let config = { startPosition = {x=3;y=3}
 //                 startDirection = Right}

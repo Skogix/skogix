@@ -6,12 +6,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Common.fs" />
-        <Compile Include="Core.fs" />
-        <Compile Include="Domain.fs" />
-        <Compile Include="World.fs" />
-        <Compile Include="GameEngineSandbox.fs" />
-        <Compile Include="State.fs" />
+      <Compile Include="Domain.fs" />
+      <Compile Include="Core.fs" />
+      <Compile Include="Common.fs" />
+      <Compile Include="Input.fs" />
+      <Compile Include="State.fs" />
+      <Compile Include="Output.fs" />
     </ItemGroup>
 
 </Project>
