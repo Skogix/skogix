@@ -24,17 +24,29 @@ let main _ =
     Console.SetCursorPosition(pos.x, pos.y)
     Console.Write('#')
     
-  let drawSnake = List.iter drawChar
-  let printGameState = drawSnake
+  let drawSnake (snake:Body) =
+    snake
+    |> List.iter drawChar
+  let printGameState s =
+//    drawSnake s.body
+    printfn "%A" s
   let printDebug = printfn "%s"
   let printPauseMenu =
-    Console.Clear()
     printfn "Paused"
+    
   let renderer:Renderer =
-    { GameState = printGameState
-      Debug = printDebug
-      Pause = printPauseMenu}
+    match output with
+    | Debug -> {
+        GameState = fun s -> ()
+        Debug = printDebug
+        Pause = ()
+      }
+    | _ ->
+      { GameState = printGameState
+        Debug = printDebug
+        Pause = printPauseMenu}
   let game = Snake.Game.startGame config renderer commandstream
+  Move |> sendCommand
   let rec getInput() =
     match Console.ReadKey(true).KeyChar with
     | ',' -> ChangeDirection Up |> sendCommand

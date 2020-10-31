@@ -1,26 +1,25 @@
 ﻿namespace Snake
 module Core =
   type Position = {x:int; y:int}
-  type Snake = Position list
+  type Body = Position list
   type Direction = Up | Down | Left | Right
   type Config = {
     startPosition: Position
     startDirection: Direction
+  }
+  type Snake = {
+    body: Body
+    dir: Direction
   }
   type Renderer = {
     GameState: (Snake -> unit)
     Debug: (string -> unit)
     Pause: (unit)
     }
-  type GameState =
-    | Running
+  type WorldState =
+    | Running of Snake
     | GameOver
     | Paused of bool
-  type GameInit = {
-    initSnake: Snake
-    initDir: Direction
-    renderer: Renderer
-  }
   type HasEaten = bool
   type Action =
     | Move
@@ -28,9 +27,9 @@ module Core =
     | AddTail
     | Die
     | Pause 
-  type MoveHead = Position -> Direction -> Snake
-  type GetTail = Snake -> Snake // oklart om det behövs
-  type GetHead = Snake -> Position
+  type MoveHead = Position -> Direction -> Body
+  type GetTail = Body -> Body // oklart om det behövs
+  type GetHead = Body -> Position
 //  kolla typen på en mailboxprocessor
 //  type CreateGame = GameInit -> GameAgent
 //  kolla typen på commandstream
@@ -45,12 +44,12 @@ module Game =
     | Down -> {pos with y = pos.y + 1}
     | Left -> {pos with x = pos.x - 1}
     | Right -> {pos with x = pos.x + 1}
-  let getHead (snake:Snake): Position = snake.Head
-  let getTail (snake:Snake) (hasEaten:HasEaten): Snake =
+  let getHead (snake:Body): Position = snake.Head
+  let getTail (snake:Body) (hasEaten:HasEaten): Body =
     match hasEaten with
     | true -> snake
     | false -> List.take (snake.Length - 1) snake
-  let moveSnake (snake:Snake) (dir:Direction) (hasEaten:HasEaten): Snake =
+  let moveSnake (snake:Body) (dir:Direction) (hasEaten:HasEaten): Body =
     let head = getHead snake
     let tail = getTail snake hasEaten
     let newHead =
@@ -60,65 +59,77 @@ module Game =
       | Left -> getNewPos head Left
       | Right -> getNewPos head Right
     newHead::tail
-  let createGame (init:GameInit) =
-    let mutable gameState = Running
-    let debug = init.renderer.Debug
-    let output = init.renderer.GameState
+  let createGame (init:WorldState) (renderer:Renderer) =
+    let mutable gameState = init
     let gameAgent =
       MailboxProcessor.Start(fun inbox ->
-        let rec loop (snake:Snake) (dir:Direction) = async {
-          output snake
+        let rec loop (state:WorldState) = async {
+          let output x =
+            match x with
+            | Running state ->
+              renderer.GameState state
+            | Paused _ ->
+              renderer.Pause
+            | _ -> ()
+          let debug = renderer.Debug
           let! action = inbox.Receive()
-          match action with
-          | Move ->
-            debug "move"
-            let newSnake = moveSnake snake dir false
-            return! loop newSnake dir
-          | ChangeDirection newDir ->
-            debug (sprintf "newDir %A" newDir)
-            return! loop snake newDir
-          | AddTail ->
-            debug "addtail"
-            let newSnake = moveSnake snake dir true
-            return! loop newSnake dir
-          | Die ->
-            debug "gameover"
-            gameState <- GameOver 
-            return ()
-          | Pause ->
-            debug "pause"
-            gameState <- Paused true
-            return! loop snake dir
+          match state with
+          | Running snake ->
+            printfn "running körs"
+            match action with
+            | Move ->
+              debug "FÅR MOVE!-------"
+              let newSnake = moveSnake snake.body snake.dir false
+              debug (sprintf "newSnake: %A" newSnake)
+              let newState = (Running {snake with body=newSnake})
+              debug (sprintf "newState: %A" newState)
+              output newState
+              return! loop newState
+            | ChangeDirection newDir ->
+              return! loop (Running {snake with dir=newDir})
+            | AddTail ->
+              let newBody = moveSnake snake.body snake.dir true
+              return! loop (Running {snake with body = newBody})
+            | Die ->
+              gameState <- GameOver 
+              return ()
+            | Pause ->
+              gameState <- Paused true
+              return! loop state
+            | _ -> return! loop state
+          | Paused b ->
+            match action with
+            | _ -> return! loop state
+          | GameOver ->
+            match action with
+            | _ -> return! loop state
         }
-        loop init.initSnake init.initDir
+        loop init
         )
     gameAgent, gameState
   let startGame (config:Config) (renderer:Renderer) (commandStream) =
     /// set gameInit
-    let gameInit = {
-      initSnake = [config.startPosition]
-      initDir = config.startDirection
-      renderer = renderer }
+    let gameInit:WorldState = Running {
+      body = [config.startPosition]
+      dir = config.startDirection }
     /// get gameAgent från createGame
-    let gameAgent, gameState = createGame gameInit
+    let gameAgent, gameState = createGame gameInit renderer
     /// rec loop
     let rec gameLoop () =
       async {
         match gameState with
-        | Running ->
-          
-    ///  async.sleep x
+        | Running _ ->
           do! Async.Sleep 500
-      ///  gameAgent.post move
           gameAgent.Post Move
           return! gameLoop ()
         | Paused b -> return! gameLoop()
+        | GameOver -> return ()
       }
     gameLoop () |> Async.StartImmediate
     /// run loop
     /// subscribe commandstream till gameAgent.post
     commandStream
-    |> Observable.subscribe gameAgent.Post
+    |> Observable.subscribe gameAgent.Post |> ignore
     
     gameState
   
