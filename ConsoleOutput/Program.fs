@@ -6,7 +6,7 @@ open Snake.Core
 type Output =
   | Debug
   | Playing
-let output = Debug
+let output = Playing
 [<EntryPoint>]
 let main _ =
   Console.Clear()
@@ -34,12 +34,11 @@ let main _ =
   let game = Snake.Game.startGame config renderer commandstream
   let rec getInput() =
     match Console.ReadKey(true).KeyChar with
-    | ',' ->
-      printfn "tog emot upp"
-      ChangeDirection Up |> sendCommand
+    | ',' -> ChangeDirection Up |> sendCommand
     | 'o' -> ChangeDirection Down |> sendCommand
     | 'a' -> ChangeDirection Left |> sendCommand
     | 'e' -> ChangeDirection Right |> sendCommand
+    | ' ' -> AddTail |> sendCommand
     getInput()
   getInput()
   0 // return an integer exit code

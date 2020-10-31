@@ -13,9 +13,11 @@ module Core =
     initDir: Direction
     renderer: Renderer
   }
+  type HasEaten = bool
   type Action =
     | Move
     | ChangeDirection of Direction
+    | AddTail
   type MoveHead = Position -> Direction -> Snake
   type GetTail = Snake -> Snake // oklart om det behövs
   type GetHead = Snake -> Position
@@ -34,12 +36,13 @@ module Game =
     | Left -> {pos with x = pos.x - 1}
     | Right -> {pos with x = pos.x + 1}
   let getHead (snake:Snake): Position = snake.Head
-  let getTail (snake:Snake): Snake =
-    snake
-    |> List.take (snake.Length - 1)
-  let moveSnake (snake:Snake) (dir:Direction): Snake =
+  let getTail (snake:Snake) (hasEaten:HasEaten): Snake =
+    match hasEaten with
+    | true -> snake
+    | false -> List.take (snake.Length - 1) snake
+  let moveSnake (snake:Snake) (dir:Direction) (hasEaten:HasEaten): Snake =
     let head = getHead snake
-    let tail = getTail snake
+    let tail = getTail snake hasEaten
     let newHead =
       match dir with
       | Up -> getNewPos head Up
@@ -47,21 +50,25 @@ module Game =
       | Left -> getNewPos head Left
       | Right -> getNewPos head Right
     newHead::tail
-    
   let createGame (init:GameInit) =
     let gameAgent =
       MailboxProcessor.Start(fun inbox ->
         let rec loop (snake:Snake) (dir:Direction) = async {
+          init.renderer snake
           let! action = inbox.Receive()
           match action with
           | Move ->
             printfn "move"
-            let newSnake = moveSnake snake dir
-            init.renderer newSnake
+            let newSnake = moveSnake snake dir false
             return! loop newSnake dir
           | ChangeDirection newDir ->
             printfn "changedir: %A" newDir
             return! loop snake newDir
+          | AddTail ->
+            printfn "addtail"
+            let newSnake = moveSnake snake dir true
+            return! loop newSnake dir
+            
         }
         loop init.initSnake init.initDir
         )
@@ -78,9 +85,8 @@ module Game =
     let rec gameLoop () =
       async {
     ///  async.sleep x
-        do! Async.Sleep 3000
+        do! Async.Sleep 500
     ///  gameAgent.post move
-        printfn "Skickar move"
         gameAgent.Post Move
         return! gameLoop ()
       }
