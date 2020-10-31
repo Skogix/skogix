@@ -56,6 +56,7 @@ let main _ =
     | ' ' -> AddTail |> sendCommand
     | 'x' -> Die |> sendCommand
     | 'p' -> Pause |> sendCommand
+    | _ -> ()
     getInput()
   getInput()
   0 // return an integer exit code

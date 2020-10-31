@@ -66,23 +66,16 @@ module Game =
         let rec loop (state:WorldState) = async {
           let output x =
             match x with
-            | Running state ->
-              renderer.GameState state
-            | Paused _ ->
-              renderer.Pause
-            | _ -> ()
+            | Running s -> do renderer.GameState s
+            do renderer.Debug (x |> string)
           let debug = renderer.Debug
           let! action = inbox.Receive()
           match state with
           | Running snake ->
-            printfn "running körs"
             match action with
             | Move ->
-              debug "FÅR MOVE!-------"
               let newSnake = moveSnake snake.body snake.dir false
-              debug (sprintf "newSnake: %A" newSnake)
               let newState = (Running {snake with body=newSnake})
-              debug (sprintf "newState: %A" newState)
               output newState
               return! loop newState
             | ChangeDirection newDir ->
@@ -94,12 +87,13 @@ module Game =
               gameState <- GameOver 
               return ()
             | Pause ->
+              debug "tryckte pause"
               gameState <- Paused true
-              return! loop state
+              //return! loop state
             | _ -> return! loop state
           | Paused b ->
-            match action with
-            | _ -> return! loop state
+            debug "PAUSED"
+            gameState <- Paused true
           | GameOver ->
             match action with
             | _ -> return! loop state
@@ -122,7 +116,7 @@ module Game =
           do! Async.Sleep 500
           gameAgent.Post Move
           return! gameLoop ()
-        | Paused b -> return! gameLoop()
+        | Paused b -> return ()
         | GameOver -> return ()
       }
     gameLoop () |> Async.StartImmediate
