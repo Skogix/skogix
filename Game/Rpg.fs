@@ -17,13 +17,14 @@ type GameState = {
 type PausedState = {
   Message: string
 }
+type OutputState =
+  | GameOutput of GameState
+  | PauseOutput of PausedState
 type WorldState = {
   GameState:GameState
   PausedState:PausedState
+  OutputState:OutputState
 }
-type OutputState =
-  | Game of GameState
-  | Pause of PausedState
 type Direction =
   | Up
   | Down
@@ -32,7 +33,7 @@ type Direction =
 type Command =
   | Move of Direction
 type Input =
-  | Move of Direction
+  | MovePlayer of Direction
   | Pause
 type Amount = int
 type Tile = {
@@ -40,7 +41,7 @@ type Tile = {
   Position: Position
 }
 type Renderer = {
-  PrintTileMap: (Tile list -> unit)
+  PrintTileMap: (GameState -> unit)
   PrintDebug: (string -> unit)
 }
 let initPlayer:Player = { Name = "Skogix"
@@ -54,45 +55,81 @@ let gameState:GameState =
                              Position = {x=3;y=3}}
   { Player = initPlayer }
 let pauseState:PausedState = { Message = "Paused" }
-let initWorldState: WorldState= { GameState = gameState
-                                  PausedState = pauseState}
-let EventManager =
-  let eventAgent =
-    MailboxProcessor<Event>.Start(fun inbox ->
-      let rec loop state = async {
-        let! event = inbox.Receive()
-        printfn "event: %A" event
-        do! loop state
-      }
-      loop initWorldState)
-  eventAgent
-let ( >>> ) x y = EventManager.Post (x y)
-let PlayerManager =
-  let playerAgent =
-    MailboxProcessor<Command>.Start(fun inbox ->
-      let rec loop player = async {
-        let! (command:Command) = inbox.Receive()
-        match command with
-        | Command.Move dir ->
-          printfn "command player move dir: %A" dir
-          PlayerUpdate >>> player 
-        return! loop player 
-      }
-      loop initPlayer)
-  playerAgent
-let InputManager =
-  let inputAgent =
-    MailboxProcessor<Input>.Start(fun inbox ->
-      let rec loop() = async {
-        let! action = inbox.Receive()
-        match action with
-        | Move d -> PlayerManager.Post (Command.Move d)
-        | Pause -> ()
-        return! loop()
-      }
-      loop())
-  inputAgent
+let initWorldState: WorldState = { GameState = gameState
+                                   PausedState = pauseState
+                                   OutputState = GameOutput gameState}
+let createGame renderer =
+  let OutputManager =
+    let outputAgent =
+      MailboxProcessor<OutputState>.Start(fun inbox ->
+        let rec loop() = async {
+          let! output = inbox.Receive()
+          match output with
+          | GameOutput state -> renderer.PrintTileMap state
+          | PauseOutput message -> ()
+          return! loop()
+        }
+        loop()
+        )
+    outputAgent
+  let output (output:OutputState) (event:Event) =  OutputManager.Post (output)
+  let StateManager =
+    let stateAgent =
+      MailboxProcessor.Start(fun inbox ->
+        let rec loop state = async {
+          let! newState = inbox.Receive()
+          printfn "StateChange %A" newState
+          do! loop newState
+        }
+        loop initWorldState)
+    stateAgent
+  let EventManager =
+    let eventAgent =
+      MailboxProcessor<Event>.Start(fun inbox ->
+        let rec loop ()= async {
+          let! event = inbox.Receive()
+          printfn "evente: %A" event
+          do! loop ()
+        }
+        loop ())
+    eventAgent
+  let ( -.- ) x y = EventManager.Post (x y)
+  let getPos pos dir =
+    match dir with
+    | Up -> {pos with y=pos.y-1}
+    | Down -> {pos with y=pos.y+1}
+    | Left -> {pos with x=pos.x-1}
+    | Right -> {pos with x=pos.x+1}
+  let PlayerManager =
+    let playerAgent =
+      MailboxProcessor<Command>.Start(fun inbox ->
+        let rec loop (player:Player) = async {
+          let! (command) = inbox.Receive()
+          match command with
+          | Move dir ->
+            let newPos = getPos player.Position dir
+            let newPlayer = {player with Position=newPos}
+            PlayerUpdate -.- newPlayer
+            return! loop newPlayer 
+        }
+        loop initPlayer)
+    playerAgent
+  let InputManager =
+    let inputAgent =
+      MailboxProcessor<Input>.Start(fun inbox ->
+        let rec loop() = async {
+          let! action = inbox.Receive()
+          match action with
+          | MovePlayer d -> PlayerManager.Post (Command.Move d)
+          | Pause -> ()
+          return! loop()
+        }
+        loop())
+    inputAgent
+  InputManager
 let StartGame (renderer:Renderer) (commandStream) =
+  let inputManager = createGame renderer
+  
   commandStream
-  |> Observable.subscribe InputManager.Post |> ignore
+  |> Observable.subscribe inputManager.Post |> ignore
   0

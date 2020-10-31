@@ -14,7 +14,10 @@ let output = Debug
 let main _ =
   Console.Clear()
   Console.CursorVisible <- false
-  let showTileMap = printfn "%A"
+  let showTileMap x =
+//    Console.Clear()
+    printfn "printtilemap: %A" x
+    
   let showDebug = printfn "%A"
   let renderer:Renderer = { PrintTileMap = showTileMap
                             PrintDebug = showDebug}
@@ -22,8 +25,10 @@ let main _ =
     let e = Event<_>()
     e.Trigger, e.Publish
   let huhu = StartGame renderer commandStream
-  Move Up |> sendCommand
-  
+  MovePlayer Up |> sendCommand
+  MovePlayer Up |> sendCommand
+  MovePlayer Up |> sendCommand
+  Pause |> sendCommand
   
   Console.ReadKey(true) |> ignore
   0
