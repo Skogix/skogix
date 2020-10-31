@@ -49,23 +49,19 @@ module Game =
     newHead::tail
     
   let createGame (init:GameInit) =
-    /// gameagent -> gameagent
     let gameAgent =
       MailboxProcessor.Start(fun inbox ->
         let rec loop (snake:Snake) (dir:Direction) = async {
           let! action = inbox.Receive()
           match action with
           | Move ->
-            printfn "Move"
+            printfn "move"
             let newSnake = moveSnake snake dir
-    ///   rec newHead::tail-1 dir
-            init.renderer snake
+            init.renderer newSnake
             return! loop newSnake dir
-    ///  todo changeDirection dir
-          | ChangeDirection dir ->
-            printfn "changedir: %A" dir
-            return! loop snake dir
-          | _ -> return! loop snake dir
+          | ChangeDirection newDir ->
+            printfn "changedir: %A" newDir
+            return! loop snake newDir
         }
         loop init.initSnake init.initDir
         )
@@ -82,7 +78,7 @@ module Game =
     let rec gameLoop () =
       async {
     ///  async.sleep x
-        do! Async.Sleep 1000
+        do! Async.Sleep 3000
     ///  gameAgent.post move
         printfn "Skickar move"
         gameAgent.Post Move
