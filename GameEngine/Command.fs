@@ -3,12 +3,19 @@ module GameEngine.Command
 open GameEngine
 open GameEngine
 open GameEngine.Domain
-let commands = ["Move Up"; "Move Down"]
-let getCommand input =
-  let tryFind =
-    commands
-    |> List.tryFind(fun command -> input = command)
-  tryFind
+
+type Direction =
+  | Up
+  | Down
+  | Left
+  | Right
+let MoveUp = printfn "Kör funktionen moveup"
+let commands = [("Move Up", MoveUp)]
+let getCommand str =
+  commands
+  |> List.tryFind (fun cmd -> str.ToString() = fst cmd)
+// todo till imorgon, använd id istället för position
+// todo verkar bli entities istället ändå -.-
 let commandAgent =
   MailboxProcessor<Command>.Start(fun inbox ->
     let rec loop() = async {
