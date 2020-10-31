@@ -9,7 +9,7 @@
       <Compile Include="Domain.fs" />
       <Compile Include="Input.fs" />
       <Compile Include="Output.fs" />
-      <Compile Include="Game.fs" />
+      <Compile Include="CreateGame.fs" />
       <Compile Include="Core.fs" />
       <Compile Include="Common.fs" />
       <Compile Include="State.fs" />

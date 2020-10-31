@@ -2,7 +2,7 @@ module GameEngine.Output
 
 open GameEngine.Domain
 
-let Output(renderer:OutputStream) =
+let Output =
   let outputAgent =
     MailboxProcessor<OutputStream>.Start(fun inbox ->
       let rec loop() = async {

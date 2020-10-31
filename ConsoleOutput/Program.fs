@@ -14,21 +14,24 @@ let main _ =
   let output:OutputStream = {
     PrintGameState = Ui.GameState
     PrintDebugInformation = Ui.Debug}
-  let sendInput, inputstream =
-    let event = Event<_>()
-    event.Trigger, event.Publish
-  let game = CreateGame.Game(inputstream, output)
+//  let sendInput, inputstream =
+//    let event = Event<_>()
+//    event.Trigger, event.Publish
+  let game = CreateGame.Game(output)
   let huhu = game.Start
-  
-  let rec getInputCommand() =
-    let input = Console.ReadKey(true).KeyChar
-    let command = Keybinds.getCommand input
-    match command with
-    | " " -> ()
-    | _ -> command |> sendInput
-    getInputCommand()
-    
-  getInputCommand()
+//  let input = game.Input
+//  let output = game.Output
+//  let huhu = game.Start
+//  
+//  let rec getInputCommand() =
+//    let input = Console.ReadKey(true).KeyChar
+//    let command = Keybinds.getCommand input
+//    match command with
+//    | " " -> ()
+//    | _ -> command |> game.input
+//    getInputCommand()
+//    
+//  getInputCommand()
     
   Console.ReadKey() |> ignore
   0
