@@ -7,14 +7,15 @@ module Core =
     startPosition: Position
     startDirection: Direction
   }
+  type Renderer = Snake -> unit
   type GameInit = {
     initSnake: Snake
     initDir: Direction
+    renderer: Renderer
   }
   type Action =
     | Move
-    | ChangeDirection
-  type Renderer = Snake -> unit
+    | ChangeDirection of Direction
   type MoveHead = Position -> Direction -> Snake
   type GetTail = Snake -> Snake // oklart om det behövs
   type GetHead = Snake -> Position
@@ -40,8 +41,12 @@ module Game =
             printfn "Move"
             let newSnake = moveSnake snake dir
     ///   rec newHead::tail-1 dir
+            init.renderer snake
             return! loop newSnake dir
     ///  todo changeDirection dir
+          | ChangeDirection dir ->
+            printfn "changedir: %A" dir
+            return! loop snake dir
           | _ -> return! loop snake dir
         }
         loop init.initSnake init.initDir
@@ -52,7 +57,7 @@ module Game =
     let gameInit = {
       initSnake = [config.startPosition]
       initDir = config.startDirection
-    }
+      renderer = renderer }
     /// get gameAgent från createGame
     let gameAgent = createGame gameInit
     /// rec loop
@@ -68,5 +73,6 @@ module Game =
     gameLoop () |> Async.StartImmediate
     /// run loop
     /// subscribe commandstream till gameAgent.post
-    0
+    commandStream
+    |> Observable.subscribe gameAgent.Post
   
