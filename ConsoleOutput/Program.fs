@@ -17,7 +17,6 @@ let main _ =
   Console.CursorVisible <- false
   
   
-  
   Console.ReadKey() |> ignore
   0
 //  let showTileMap x =
