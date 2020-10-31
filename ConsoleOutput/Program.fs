@@ -25,11 +25,16 @@ let main _ =
     let e = Event<_>()
     e.Trigger, e.Publish
   let huhu = StartGame renderer commandStream
-  MovePlayer Up |> sendCommand
-  MovePlayer Up |> sendCommand
-  MovePlayer Up |> sendCommand
-  Pause |> sendCommand
-  
+  let rec getInput() =
+    match Console.ReadKey(true).KeyChar with
+    | ',' -> MovePlayer Up |> sendCommand
+    | 'o' -> MovePlayer Down |> sendCommand
+    | 'a' -> MovePlayer Left |> sendCommand
+    | 'e' -> MovePlayer Right |> sendCommand
+    | 'p' -> Pause |> sendCommand
+    | _ -> ()
+    getInput()
+  getInput()
   Console.ReadKey(true) |> ignore
   0
   

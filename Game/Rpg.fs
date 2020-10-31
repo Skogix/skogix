@@ -72,14 +72,19 @@ let createGame renderer =
         loop()
         )
     outputAgent
-  let output (output:OutputState) (event:Event) =  OutputManager.Post (output)
+  let output (output:OutputState) = OutputManager.Post (output)
   let StateManager =
     let stateAgent =
       MailboxProcessor.Start(fun inbox ->
-        let rec loop state = async {
-          let! newState = inbox.Receive()
-          printfn "StateChange %A" newState
-          do! loop newState
+        let rec loop (state:WorldState) = async {
+          let! (event:Event) = inbox.Receive()
+          match event with
+          | PlayerUpdate p ->
+            let newGameState = {state.GameState with Player = p}
+            let newState = {state with GameState = newGameState }
+            output (GameOutput newState.GameState)
+            return! loop newState
+          do! loop state
         }
         loop initWorldState)
     stateAgent
@@ -88,7 +93,7 @@ let createGame renderer =
       MailboxProcessor<Event>.Start(fun inbox ->
         let rec loop ()= async {
           let! event = inbox.Receive()
-          printfn "evente: %A" event
+          StateManager.Post event
           do! loop ()
         }
         loop ())
