@@ -5,8 +5,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Core.fs" />
         <Compile Include="Domain.fs" />
+        <Compile Include="Core.fs" />
+        <Compile Include="Sandbox.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\GameEngine\GameEngine.fsproj" />
     </ItemGroup>
 
 </Project>

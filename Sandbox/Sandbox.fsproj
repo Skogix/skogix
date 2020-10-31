@@ -5,8 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Core.fs" />
-        <Content Include="Readme.md" />
+        <Compile Include="Snake.fs" />
     </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 module GameEngine.SandBox
 
+
 // mest basic agent som går att göra
 let whileTrueAgent =
   MailboxProcessor.Start(fun inbox ->
@@ -32,3 +33,22 @@ let whileTrueAgentWithScan =
         printfn "vanligt msg: %s" msg
     }
     )
+let createTimer interval eventHandler =
+  let timer = new System.Timers.Timer(float interval)
+  timer.AutoReset <- true
+  timer.Elapsed.Add eventHandler
+  async {
+    timer.Start()
+    do! Async.Sleep 10000
+    timer.Stop()
+  }
+let createTimerAndObservable interval =
+  let timer = new System.Timers.Timer(float interval)
+  timer.AutoReset <- true
+  let observable = timer.Elapsed
+  let task = async {
+    timer.Start()
+    do! Async.Sleep 10000
+    timer.Stop()
+  }
+  (task, observable)

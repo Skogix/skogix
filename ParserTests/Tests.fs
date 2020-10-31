@@ -1,7 +1,6 @@
 module ParserTests
 
 open NUnit.Framework
-open NUnit.Framework
 
 
 [<SetUp>]
