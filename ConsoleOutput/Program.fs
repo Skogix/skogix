@@ -1,22 +1,35 @@
 ﻿// Learn more about F# at http://fsharp.org
 
 open System
-open System.Diagnostics
-open System.Net.Mail
+open ConsoleInput
+open ConsoleOutput
 open GameEngine
-open Sandbox.Rpg1
-
-type Output =
-  | Debug
-  | Playing
-let output = Debug
+open GameEngine.Domain
 
 [<EntryPoint>]
 let main _ =
   Console.Clear()
   Console.CursorVisible <- false
   
+  let output:OutputStream = {
+    PrintGameState = Ui.GameState
+    PrintDebugInformation = Ui.Debug}
+  let sendInput, inputstream =
+    let event = Event<_>()
+    event.Trigger, event.Publish
+  let game = CreateGame.Game(inputstream, output)
+  let huhu = game.Start
   
+  let rec getInputCommand() =
+    let input = Console.ReadKey(true).KeyChar
+    let command = Keybinds.getCommand input
+    match command with
+    | " " -> ()
+    | _ -> command |> sendInput
+    getInputCommand()
+    
+  getInputCommand()
+    
   Console.ReadKey() |> ignore
   0
 //  let showTileMap x =

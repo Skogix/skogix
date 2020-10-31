@@ -7,11 +7,13 @@
 
     <ItemGroup>
       <Compile Include="Domain.fs" />
+      <Compile Include="Input.fs" />
+      <Compile Include="Output.fs" />
+      <Compile Include="Game.fs" />
       <Compile Include="Core.fs" />
       <Compile Include="Common.fs" />
-      <Compile Include="Input.fs" />
       <Compile Include="State.fs" />
-      <Compile Include="Output.fs" />
+      <Compile Include="StartGame.fs" />
     </ItemGroup>
 
 </Project>

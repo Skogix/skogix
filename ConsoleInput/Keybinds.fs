@@ -1,7 +1,11 @@
 ﻿module ConsoleInput.Keybinds
-type KeyBind = char
-let MoveUp = ','
-let MoveDown = 'o'
-let MoveLeft = 'a'
-let MoveRight = 'e'
+let getCommand inputChar =
+  match inputChar with
+  | ',' -> "Move Up"
+  | 'o' -> "Move Down"
+  | 'a' -> "Move Left"
+  | 'e' -> "Move Right"
+  | _ -> ""
+  
+
 

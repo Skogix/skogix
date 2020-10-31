@@ -6,6 +6,7 @@
 
     <ItemGroup>
         <Compile Include="Keybinds.fs" />
+        <Compile Include="Get.fs" />
     </ItemGroup>
 
 </Project>
