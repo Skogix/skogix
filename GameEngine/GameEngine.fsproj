@@ -5,8 +5,4 @@
         <RootNamespace>GameEngine</RootNamespace>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Compile Include="Init.fs" />
-    </ItemGroup>
-
 </Project>

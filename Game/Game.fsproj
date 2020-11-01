@@ -8,4 +8,8 @@
       <ProjectReference Include="..\GameEngine\GameEngine.fsproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Include="Init.fs" />
+    </ItemGroup>
+
 </Project>

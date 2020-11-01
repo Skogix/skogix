@@ -1,27 +1,46 @@
 ﻿// Learn more about F# at http://fsharp.org
 
 open System
+open Game.Init
 
-
+type TestIntComponent = {num: int}
+type TestStringComponent = {str: string}
 [<EntryPoint>]
 let main _ =
   Console.Clear()
   Console.CursorVisible <- false
   
-  let gameRenderer = ()
-  let debugRenderer = printfn "Debug::: %s" 
+  let gameRenderer = printfn "GameRenderer::: %s"
+  let debugRenderer = printfn "DebugRenderer::: %s" 
   
-  let outputStream:Renderer =
-    {game: gameRenderer
-     debug: debugRenderer}
-    
-  let gameInit = gameInit outputStream inputStream
+  let outputStream:Renderer = {
+    Renderer.Game = gameRenderer
+    Debug = debugRenderer }
+  let input, inputStream =
+    let event = Event<_>()
+    event.Trigger, event.Publish
   
-  gameInit.AddCommand "Add" (fun x y -> x + y)
+  let gameCreator = Game.Init.gameCreator
+  gameCreator.addComponentType<TestIntComponent>()
+  gameCreator.addComponentType<TestStringComponent>()
+  gameCreator.addOutputSource outputStream
   
-  let game = gameInit.StartGame
+  let game = Game.Init.game
+  let input = game.input
   
-  game.input "Add" 5 5
+  input "test"
+  
+  let tester = Game.Init.tester
+  
+  
+  
+  
+  
+//  initInput.AddCommand "Add" (fun x y -> x + y)
+//  
+//  let game = initInput.StartGame
+//  
+//  game.input "Add" 5 5
   
   
   
