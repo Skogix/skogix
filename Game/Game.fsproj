@@ -6,6 +6,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\GameEngine\GameEngine.fsproj" />
+      <ProjectReference Include="..\Parser\Parser.fsproj" />
     </ItemGroup>
 
     <ItemGroup>

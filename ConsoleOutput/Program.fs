@@ -2,35 +2,53 @@
 
 open System
 open Game.Init
+open Parser
+open Parser.Core
 
+type ParseOutput =
+  | Test
+  | Skogix of string
 type TestIntComponent = {num: int}
 type TestStringComponent = {str: string}
 [<EntryPoint>]
 let main _ =
   Console.Clear()
   Console.CursorVisible <- false
-  
-  let gameRenderer = printfn "GameRenderer::: %s"
-  let debugRenderer = printfn "DebugRenderer::: %s" 
-  
-  let outputStream:Renderer = {
-    Renderer.Game = gameRenderer
-    Debug = debugRenderer }
-  let input, inputStream =
-    let event = Event<_>()
-    event.Trigger, event.Publish
-  
-  let gameCreator = Game.Init.gameCreator
-  gameCreator.addComponentType<TestIntComponent>()
-  gameCreator.addComponentType<TestStringComponent>()
-  gameCreator.addOutputSource outputStream
-  
-  let game = Game.Init.game
-  let input = game.input
-  
-  input "test"
-  
-  let tester = Game.Init.tester
+  let p str = printfn "%A" str
+  let p1 str a = printfn "%s: %A" str a
+  let testCommands = ["test"; "skogix"]
+  let parseTest =
+    parseString "test"
+    |>> (fun _ -> Test)
+  let parseSkogix =
+    parseString "skogix"
+    |>> (fun _ -> Skogix "huhu")
+  // ska få tillbaka Parseoutput.Test
+  printfn "%A" (run parseTest "test")
+  // ska få tillbaka Skogix med huhu
+  printfn "%A" (run parseSkogix "skogix")
+//  p (huhu "skogix")
+//  p (huhu "teeest")
+//  p (huhu "wawa")
+//  
+//  let gameRenderer = printfn "GameRenderer::: %s"
+//  let debugRenderer = printfn "DebugRenderer::: %s" 
+//  
+//  let outputStream:Renderer = {
+//    Renderer.Game = gameRenderer
+//    Debug = debugRenderer }
+//  
+//  let gameCreator = Game.Init.gameCreator
+//  gameCreator.addComponentType<TestIntComponent>()
+//  gameCreator.addComponentType<TestStringComponent>()
+//  gameCreator.addOutputSource outputStream
+//  
+//  let game = Game.Init.game
+//  let input = game.input
+//  
+//  input "Add 5 5" 
+//  
+//  let tester = Game.Init.tester
   
   
   

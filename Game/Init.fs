@@ -1,7 +1,9 @@
 module Game.Init
 
 open System
+open Parser.Core
 
+  
 type OutputStream = string
 type Renderer = {
   Game: (string -> unit)
