@@ -6,16 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Include="Domain.fs" />
-      <Compile Include="Output.fs" />
-      <Compile Include="Command.fs" />
-      <Compile Include="Input.fs" />
-      <Compile Include="CreateGame.fs" />
-      <Compile Include="GameLogic.fs" />
-      <Compile Include="Core.fs" />
-      <Compile Include="Common.fs" />
-      <Compile Include="State.fs" />
-      <Compile Include="StartGame.fs" />
+      <Compile Include="Init.fs" />
     </ItemGroup>
 
 </Project>

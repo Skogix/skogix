@@ -4,9 +4,4 @@
         <TargetFramework>netcoreapp3.1</TargetFramework>
     </PropertyGroup>
 
-    <ItemGroup>
-        <Compile Include="Keybinds.fs" />
-        <Compile Include="Get.fs" />
-    </ItemGroup>
-
 </Project>
