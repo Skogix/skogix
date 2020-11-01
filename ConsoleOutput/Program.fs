@@ -1,8 +1,6 @@
 ﻿// Learn more about F# at http://fsharp.org
 
 open System
-open GameEngine.Command
-open GameEngine.Domain
 
 
 [<EntryPoint>]
@@ -18,17 +16,50 @@ let main _ =
 //  let reply a b c = fun rc -> (Reply rc, a, b, c )
 //  let foo = Command<int>.Agent.PostAndAsyncReply (reply "add" 5 5)
 //  printfn "%A" wawa
-  Command<int>.AddCommand "Add" (fun x y -> x + y)
-  Command<int>.AddCommand "Subtract" (fun x y -> x - y)
-  Command<int>.Post "Add" 5 5
-  Command<int>.Post "Add" 5 2
-  Command<int>.Post "Add" 5 4
-  Command<int>.Post "Add" 5 4
-  let svar = Command<int>.PostAndReply "Add" 10 10
-  printfn "%i" svar
-  printfn "List: "
+
   
- 
+  
+  
+  
+  
+  
+  
+  
+//  Command<int>.AddCommand "Add" (fun x y -> x + y)
+//  Command<int>.AddCommand "Subtract" (fun x y -> x - y)
+//  Command<int>.Post "Add" 5 5
+//  Command<int>.Post "Add" 5 2
+//  Command<int>.Post "Add" 5 4
+//  Command<int>.Post "Add" 5 4
+//  let reply = Command<int>.PostAndReply "Add" 5 5
+//  let reply2 = Command<int>.PostAndReply "huhu" 5 5
+//  match reply2 with
+//  | Some x -> printfn "hittade x"
+//  | None -> printfn "hittade inte x"
+//  printfn "%A" reply
+//  printfn "%A" reply2
+//  let huhu = Command<int>.PostAndReplyAsync "Add" 5 5
+//  
+//  match Command<int>.PostAndReplyAsync "Ad" 5 5 with
+//  | Ok x ->
+//    x
+//    |> Async.RunSynchronously
+//    |> printfn "%i"
+//  | Fail x -> printfn x
+//  
+//  let huhu x =
+//    match x with
+//    | x when x % 2 = 0 -> Ok (sprintf "Gick bra%i" x)
+//    | _ -> Fail "gick inte bra"
+//  printfn "%A" (huhu 10)
+//  
+  
+  
+//  let wawa = add 10 15
+//  printfn "%A" wawa
+  
+  
+  
   
 //  let outputStream:OutputStream = {
 //    GameState = Ui.GameState
