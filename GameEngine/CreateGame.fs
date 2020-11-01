@@ -2,7 +2,6 @@ module GameEngine.CreateGame
 open Domain
 open GameEngine
 open Input
-open Command
 
 let PlayerInit:Player = {
   Name = "Skogix"

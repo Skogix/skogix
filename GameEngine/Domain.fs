@@ -4,7 +4,6 @@ open System
 
 module Domain =
 
-  type Command = string
   type Position = {x:int;y:int}
   type Player = {
     Name: string

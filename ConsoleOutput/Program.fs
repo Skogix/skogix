@@ -1,30 +1,51 @@
 ﻿// Learn more about F# at http://fsharp.org
 
 open System
-open ConsoleOutput
-open GameEngine
+open GameEngine.Command
 open GameEngine.Domain
+
 
 [<EntryPoint>]
 let main _ =
   Console.Clear()
   Console.CursorVisible <- false
+//  Command<int>.AddCommand "add" (fun x y -> x + y)
+//  Command<int>.Agent.Post (Run, "add", 5, 5)
+////  let huhu = Command<int>.Agent.PostAndReply (fun rc -> (Reply rc, "add",5,5))
+//  let huhu = Command<int>.Agent.PostAndReply (fun rc -> (Reply rc, "add",5,5))
+//  let wawa = Command<int>.Agent.PostAndAsyncReply (fun rc -> (Reply rc, "add",5,5))
+//  printfn "%A" (wawa.GetType)
+//  let reply a b c = fun rc -> (Reply rc, a, b, c )
+//  let foo = Command<int>.Agent.PostAndAsyncReply (reply "add" 5 5)
+//  printfn "%A" wawa
+  Command<int>.AddCommand "Add" (fun x y -> x + y)
+  Command<int>.AddCommand "Subtract" (fun x y -> x - y)
+  Command<int>.Post "Add" 5 5
+  Command<int>.Post "Add" 5 2
+  Command<int>.Post "Add" 5 4
+  Command<int>.Post "Add" 5 4
+  let svar = Command<int>.PostAndReply "Add" 10 10
+  printfn "%i" svar
+  printfn "List: "
   
-  let outputStream:OutputStream = {
-    GameState = Ui.GameState
-    Debug = Ui.Debug}
-  let sendInput, inputstream =
-    let event = Event<_>()
-    event.Trigger, event.Publish
-  let input = CreateGame.game outputStream
-  StartGame.StartGame outputStream inputstream
-  input "Move Up"
-  let rec getInput() =
-    let consoleInput = Console.ReadLine()
-    input consoleInput
-    getInput()
-  getInput()
+ 
   
+//  let outputStream:OutputStream = {
+//    GameState = Ui.GameState
+//    Debug = Ui.Debug}
+//  let sendInput, inputstream =
+//    let event = Event<_>()
+//    event.Trigger, event.Publish
+//  let input = CreateGame.game outputStream
+//  StartGame.StartGame outputStream inputstream
+//  input "Move Up"
+//  let rec getInput() =
+//    let consoleInput = Console.ReadLine()
+//    input consoleInput
+//    getInput()
+//  getInput()
+//
+
 //  let input = game.Input
 //  let output = game.Output
 //  let huhu = game.Start
