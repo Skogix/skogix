@@ -4,6 +4,7 @@ open System
 open Game.Init
 open Parser
 open Parser.Core
+open Parser.SSharp
 
 type ParseOutput =
   | Test
@@ -18,11 +19,8 @@ let main _ =
   let p1 str a = printfn "%s: %A" str a
   let testCommands = ["test"; "skogix"]
   
-  let parse =
-    testCommands
-    |> List.map (run SSharp.skogixString)
-  printfn "%A" parse
-  
+  let example1 = """{ "name" : "Scott", "isMale" : true, "bday" : {"year":2001, "month":12, "day":25 }, "favouriteColors" : ["blue", "green"] }"""
+  printfn "%A" (run sValue example1)
   
   
   
