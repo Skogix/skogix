@@ -16,21 +16,24 @@ let printResult result =
   | Success (x, inp) -> printfn "%A" x
   | Failure (label, error) -> printfn "Error: Label %s: Error: %s" label error
 /// parsear en char
-let parseChar char =
-  let label = sprintf "%c" char
+let satisfy predicate label =
   let innerFn input =
     if String.IsNullOrEmpty(input) then
       Failure(label, "inge mer input")
     else
       let first = input.[0]
-      if first = char then
+      if predicate first then
         let rest = input.[1..]
-        Success (char, rest)
+        Success (first, rest)
       else
         let error = sprintf "Fick %c" first
         Failure (label, error)
   {parseFn=innerFn;label=label}
 /// kör en parser med input
+let parseChar (charToMatch:char) =
+  let label = sprintf "%c" charToMatch
+  let predicate ch = (ch = charToMatch)
+  satisfy predicate label  
 let run p input =
   // deconstructar parser precis som en (x,y) skulle deconstructa en tuple
   let innerFn = p.parseFn
@@ -173,13 +176,19 @@ let separatedByOne p sep =
 let separateBy p sep =
   separatedByOne p sep <|> returnParser []
   
-  
-  
-  
+let charListToStr chars = String(List.toArray chars)
+/// skapar en parser<string> av 0+ parsers 
+let manyChars charParsers =
+  many charParsers
+  |>> charListToStr
+/// skapar en parser<string> av 1+ parsers 
+let manyChars1 charParsers =
+  many1 charParsers
+  |>> charListToStr
   
 /// mappar string -> parser
-let parseString (str:seq<char>) =
-  let mapCharsToStr cs = String(List.toArray cs)
+let parseString (str:string) =
+  let label = str
   // seq<char>
   str
   // char list
@@ -189,15 +198,43 @@ let parseString (str:seq<char>) =
   // parser<char list>
   |> seqParsers
   // parser<string>
-  |> mapParse mapCharsToStr
+  |> mapParse charListToStr
+  <?> label
+/// parsear en whitespace
+let parseWhitespace =
+  let predicate = Char.IsWhiteSpace
+  let label = "whitespace"
+  satisfy predicate label
+let spaces = many parseWhitespace
+let spaces1 = many1 parseWhitespace
+/// parsea en digit
+let digitChar =
+  let predicate = Char.IsDigit
+  let label = "digit"
+  satisfy predicate label
 /// parsea en int
 let parseInt =
-  let resultToInt (sign, cs) =
-    let i = String(List.toArray cs) |> int
+  let label = "int"
+  let resultToInt (sign, digits) =
+    // todo int overflow
+    let i = digits |> int
     match sign with
-    | Some _ -> -i // gör negativ
+    | Some ch -> -i
     | None -> i
-  let digit = anyOf ['0'..'9']
-  let digits = many1 digit
+  let digits = manyChars1 digitChar
   opt (parseChar '-') .>>. digits
-  |>> resultToInt
+  |> mapParse resultToInt
+  <?> label
+/// parsea en float
+let parseFloat =
+  let label = "float"
+  let resultToFloat (((sign, digits1), dot), digits2) =
+    let float = sprintf "%s.%s" digits1 digits2 |> float
+    match sign with
+    | Some _ -> -float
+    | None -> float
+  let digits = manyChars1 digitChar
+  opt (parseChar '-') .>>. digits .>>. parseChar '.' .>>. digits
+  |> mapParse resultToFloat
+  <?> label
+  
