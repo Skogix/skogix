@@ -18,12 +18,10 @@ let main _ =
   let p1 str a = printfn "%s: %A" str a
   let testCommands = ["test"; "skogix"]
   
-  let createParsers ps: Parser<string> list =
+  let parse =
     testCommands
-    |> List.map Parser.Core.parseString
-  let parsers = createParsers testCommands
-  printfn "%A" parsers
-  
+    |> List.map (run SSharp.skogixString)
+  printfn "%A" parse
   
   
   

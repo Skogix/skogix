@@ -168,13 +168,13 @@ let (>>.) p1 p2 = p1 .>>. p2 |> mapParse (fun (_,b) -> b)
 let between p1 p2 p3 = p1 >>. p2 .>> p3
 
 /// parsear 1+ av p som separeras av sep
-let separatedByOne p sep =
+let separatedBy1 p sep =
   let sepThenParse = sep >>. p
   p .>>. many sepThenParse
   |>> fun (p, ps) -> p::ps
 // parsear 0+ av p som separeras av sep
 let separateBy p sep =
-  separatedByOne p sep <|> returnParser []
+  separatedBy1 p sep <|> returnParser []
   
 let charListToStr chars = String(List.toArray chars)
 /// skapar en parser<string> av 0+ parsers 
