@@ -20,7 +20,8 @@ let internal OutputAgent(outputStream:Renderer) = MailboxProcessor<OutputStream>
   )
 
 type TestGameComponent = {Name:string}
-let internal gameEngineRenderer:Renderer = {
+// todo sätt internal, bara för c# atm
+let gameEngineRenderer:Renderer = {
   Game = printfn "Game::: %A"
   Debug = printfn "Debug::: %A"}
 let debug str = gameEngineRenderer.Debug str
@@ -42,7 +43,7 @@ type InputStream = string
 let internal InputAgent = MailboxProcessor<InputStream>.Start(fun inbox ->
   let rec loop () = async {
     let! input = inbox.Receive()
-    debug1 "inputagent" input
+    debug1 "inputagent " input
     return! loop ()
   }
   loop ()

@@ -17,16 +17,25 @@ let main _ =
   let p str = printfn "%A" str
   let p1 str a = printfn "%s: %A" str a
   let testCommands = ["test"; "skogix"]
-  let parseTest =
-    parseString "test"
-    |>> (fun _ -> Test)
-  let parseSkogix =
-    parseString "skogix"
-    |>> (fun _ -> Skogix "huhu")
-  // ska få tillbaka Parseoutput.Test
-  printfn "%A" (run parseTest "test")
-  // ska få tillbaka Skogix med huhu
-  printfn "%A" (run parseSkogix "skogix")
+  
+  let createParsers ps: Parser<string> list =
+    testCommands
+    |> List.map Parser.Core.parseString
+  let parsers = createParsers testCommands
+  
+  
+  
+//  let parseTest =
+//    parseString "test"
+//    |>> (fun _ -> Test)
+//  let parseSkogix =
+//    parseString "skogix"
+//    |>> (fun _ -> Skogix "huhu")
+//  // ska få tillbaka Parseoutput.Test
+//  printfn "%A" (run parseTest "test")
+//  // ska få tillbaka Skogix med huhu
+//  printfn "%A" (run parseSkogix "skogix")
+
 //  p (huhu "skogix")
 //  p (huhu "teeest")
 //  p (huhu "wawa")
