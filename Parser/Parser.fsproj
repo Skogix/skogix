@@ -9,6 +9,7 @@
         <Compile Include="Parsers.fs" />
         <Compile Include="Core.fs" />
         <Content Include="Readme.md" />
+        <Compile Include="SSharp.fs" />
     </ItemGroup>
 
 </Project>
