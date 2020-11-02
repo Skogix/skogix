@@ -8,6 +8,7 @@ type SkogixValue =
   | SkogixNumber of float
   | SkogixArray of SkogixValue list
   | SkogixObject of Map<string, SkogixValue>
+  | SkogixCommand of string * SkogixValue option
 
 /// infix som kör parser, ignorerar resultatet och returnar value
 let (>>%) p x = p |>> fun _ -> x
@@ -24,22 +25,20 @@ let skogixBool =
     parseString "false"
     >>% SkogixBool false
   skogixTrue <|> skogixFalse <?> "bool"
-run skogixBool "true"
-run skogixBool "false"
-run skogixBool "huhu"
-let skogixString =
+let skogixStringParser =
   let chars = anyOf (['a'..'z'] @ ['A'..'Z'])
   let string =
     manyChars chars 
   string
-  |>> SkogixString
-  <?> "regular string"
+  <?> "string parser"
 let skogixQuotedString =
   let quote = parseChar '\"' <?> "quote"
   let chars = anyOf (['a'..'z'] @ ['A'..'Z'])
   quote >>. manyChars chars .>> quote
-run skogixString "\"test\""
-run skogixString "test\""
+let skogixString =
+  skogixQuotedString
+  |>> SkogixString
+  <?> "quoted string"
 let skogixNumber =
   let optMinus = opt (parseChar '-')
   let zero = parseString "0"
@@ -88,13 +87,13 @@ let createParserForwardedToRef<'a>() =
     run !parserRef input
   let wrapperParser = {parseFn=innerFn;label="dno"}
   wrapperParser, parserRef
-let sValue, sValueRef = createParserForwardedToRef<SkogixValue>() 
+let sSharpValue, sValueRef = createParserForwardedToRef<SkogixValue>() 
 
 let skogixArray =
   let left = parseChar '[' .>> spaces
   let right = parseChar ']' .>> spaces
   let comma = parseChar ',' .>> spaces
-  let value = sValue .>> spaces
+  let value = sSharpValue .>> spaces
   let values = separatedBy1 value comma
   between left values right
   |>> SkogixArray
@@ -119,7 +118,7 @@ let skogixObject =
   let colon = parseChar ':' .>> spaces
   let comma = parseChar ',' .>> spaces
   let key = skogixQuotedString .>> spaces
-  let value = sValue .>> spaces
+  let value = sSharpValue .>> spaces
   
   let keyValue = (key .>> colon) .>>. value
   let keyValues = separatedBy1 keyValue comma
@@ -127,13 +126,32 @@ let skogixObject =
   between left keyValues right
   |>> Map.ofList
   |>> SkogixObject
-printfn "%A" (run skogixObject """{ "a":1, "b" : 2 }""")
+let skogixCommand =
+  let command = skogixStringParser .>> spaces
+  let argument = opt (
+                       skogixNull
+                       <|> skogixBool
+                       <|> skogixNumber
+                       <|> skogixArray
+                       <|> skogixString
+                       <|> skogixObject
+                       
+                       .>> spaces
+                     )
+  let skogixCommand = command .>>. argument
+//  let argument = opt (sValue .>> spaces)
+//  let skogixCommand = command .>>. argument
+  skogixCommand
+  |>>  SkogixCommand
 sValueRef := choice
   [
     skogixNull
     skogixBool
     skogixNumber
-    skogixString
-    skogixArray
     skogixObject
+    skogixString
+    skogixCommand
+    skogixArray
   ]
+let printSSharp (input:string) = printResult (run sSharpValue input)
+let getSSharp (input:string) = run sSharpValue input

@@ -44,6 +44,7 @@ let internal InputAgent = MailboxProcessor<InputStream>.Start(fun inbox ->
   let rec loop () = async {
     let! input = inbox.Receive()
     debug1 "inputagent " input
+    gameCreator.outputs
     return! loop ()
   }
   loop ()

@@ -2,9 +2,9 @@
 
 open System
 open Game.Init
-open Parser
-open Parser.Core
-open Parser.SSharp
+type Player = {
+  mutable Name: string
+}
 
 type ParseOutput =
   | Test
@@ -15,61 +15,26 @@ type TestStringComponent = {str: string}
 let main _ =
   Console.Clear()
   Console.CursorVisible <- false
-  let p str = printfn "%A" str
-  let p1 str a = printfn "%s: %A" str a
-  let testCommands = ["test"; "skogix"]
+//  sSharp """listOfThings [ 123.341, setXtoTrue true, "string", null, innerArrayCommand [1,true,null],{"name": "Skogix", "health": 100} ]"""
+    
+  let gameRenderer = printfn "GameRenderer::: %s"
+  let debugRenderer = printfn "DebugRenderer::: %s" 
   
-  let example1 = """{ "name" : "Scott", "isMale" : true, "bday" : {"year":2001, "month":12, "day":25 }, "favouriteColors" : ["blue", "green"] }"""
-  printfn "%A" (run sValue example1)
+  let outputStream:Renderer = {
+    Renderer.Game = gameRenderer
+    Debug = debugRenderer }
   
+  let gameCreator = Game.Init.gameCreator
+  gameCreator.addComponentType<TestIntComponent>()
+  gameCreator.addComponentType<TestStringComponent>()
+  gameCreator.addOutputSource outputStream
   
+  let game = Game.Init.game
+  let input = game.input
   
-//  let parseTest =
-//    parseString "test"
-//    |>> (fun _ -> Test)
-//  let parseSkogix =
-//    parseString "skogix"
-//    |>> (fun _ -> Skogix "huhu")
-//  // ska få tillbaka Parseoutput.Test
-//  printfn "%A" (run parseTest "test")
-//  // ska få tillbaka Skogix med huhu
-//  printfn "%A" (run parseSkogix "skogix")
-
-//  p (huhu "skogix")
-//  p (huhu "teeest")
-//  p (huhu "wawa")
-//  
-//  let gameRenderer = printfn "GameRenderer::: %s"
-//  let debugRenderer = printfn "DebugRenderer::: %s" 
-//  
-//  let outputStream:Renderer = {
-//    Renderer.Game = gameRenderer
-//    Debug = debugRenderer }
-//  
-//  let gameCreator = Game.Init.gameCreator
-//  gameCreator.addComponentType<TestIntComponent>()
-//  gameCreator.addComponentType<TestStringComponent>()
-//  gameCreator.addOutputSource outputStream
-//  
-//  let game = Game.Init.game
-//  let input = game.input
-//  
-//  input "Add 5 5" 
-//  
-//  let tester = Game.Init.tester
+  input "Add 5 5" 
   
-  
-  
-  
-  
-//  initInput.AddCommand "Add" (fun x y -> x + y)
-//  
-//  let game = initInput.StartGame
-//  
-//  game.input "Add" 5 5
-  
-  
-  
+  let tester = Game.Init.tester
   
   Console.ReadLine() |> ignore
   0

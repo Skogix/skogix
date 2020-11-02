@@ -4,8 +4,8 @@ type ParserLabel = string
 type ParserError = string
 /// resultatet av en parseing
 type Result<'a> =
-  | Success of 'a
-  | Failure of ParserLabel * ParserError
+  | ParseSuccess of 'a
+  | ParseFailure of ParserLabel * ParserError
 /// wrapper till alla parsers
 type Parser<'T> = {
   parseFn: (string -> Result<'T * string>)
@@ -13,21 +13,21 @@ type Parser<'T> = {
 }
 let printResult result =
   match result with
-  | Success (x, inp) -> printfn "%A" x
-  | Failure (label, error) -> printfn "Error: Label %s: Error: %s" label error
+  | ParseSuccess (x, inp) -> printfn "%A" x
+  | ParseFailure (label, error) -> printfn "Error: Label %s: Error: %s" label error
 /// parsear en char
 let satisfy predicate label =
   let innerFn input =
     if String.IsNullOrEmpty(input) then
-      Failure(label, "inge mer input")
+      ParseFailure(label, "inge mer input")
     else
       let first = input.[0]
       if predicate first then
         let rest = input.[1..]
-        Success (first, rest)
+        ParseSuccess (first, rest)
       else
         let error = sprintf "Fick %c" first
-        Failure (label, error)
+        ParseFailure (label, error)
   {parseFn=innerFn;label=label}
 /// kör en parser med input
 let parseChar (charToMatch:char) =
@@ -44,8 +44,8 @@ let setLabel p newLabel =
   let newInnerFn input =
     let result = p.parseFn input
     match result with
-    | Success s -> Success s
-    | Failure (oldLabel, err) -> Failure (newLabel, err)
+    | ParseSuccess s -> ParseSuccess s
+    | ParseFailure (oldLabel, err) -> ParseFailure (newLabel, err)
   {parseFn=newInnerFn;label=newLabel}
 let ( <?> ) = setLabel
  
@@ -58,8 +58,8 @@ let bindParser f p =
   let innerFn input =
     let result1 = run p input
     match result1 with
-    | Failure (label, err) -> Failure (label, err)
-    | Success (firstIn, restIn) ->
+    | ParseFailure (label, err) -> ParseFailure (label, err)
+    | ParseSuccess (firstIn, restIn) ->
       // kör f för att få en ny parser
       let p2 = f firstIn
       // kör parsern med resten av input
@@ -70,7 +70,7 @@ let ( >>= ) p f = bindParser f p
 /// transforma en normal value till parser, t.ex a -> parser<a>
 let returnParser a =
   let label = sprintf "%A" a
-  let innerFn b = Success (a, b)
+  let innerFn b = ParseSuccess (a, b)
   {parseFn=innerFn;label=label}
 /// mappar a -> b till parser<a> -> parser<b>
 let mapParse f = bindParser (f >> returnParser)
@@ -99,12 +99,12 @@ let orElse p1 p2 =
   let innerFn input =
     let result1 = run p1 input
     match result1 with
-    | Success result -> result1
-    | Failure (_,err) ->
+    | ParseSuccess result -> result1
+    | ParseFailure (_,err) ->
       let result2 = run p2 input
       match result2 with
-      | Success _ -> result2
-      | Failure (_,err) -> Failure (label, err)
+      | ParseSuccess _ -> result2
+      | ParseFailure (_,err) -> ParseFailure (label, err)
   {parseFn=innerFn;label=label}
 /// infix för orElse
 let ( <|> ) = orElse
@@ -131,9 +131,9 @@ let rec seqParsers ps =
 let rec parseZeroOrMore p input =
   let result1 = run p input
   match result1 with
-  | Failure _ -> ([], input)
+  | ParseFailure _ -> ([], input)
   // (valuen som parseas, resten av input 1)
-  | Success (x, restIn) ->
+  | ParseSuccess (x, restIn) ->
     // (resten av alla values från innan, resten av input 2)
     let (xs, restOut) =
       // kör så länge det är success
@@ -145,7 +145,7 @@ let rec parseZeroOrMore p input =
 /// matchar 0 eller mer av en parser
 let many p =
   let label = sprintf "many %s" (getLabel p)
-  let rec innerFn input = Success (parseZeroOrMore p input)
+  let rec innerFn input = ParseSuccess (parseZeroOrMore p input)
   {parseFn=innerFn;label=label}
 /// matchar minst en av en parser
 let many1 p =
