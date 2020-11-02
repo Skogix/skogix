@@ -1,50 +1,74 @@
 ﻿module Parser.Core
 open System
+type ParserLabel = string
+type ParserError = string
 /// resultatet av en parseing
 type Result<'a> =
   | Success of 'a
-  | Failure of string
+  | Failure of ParserLabel * ParserError
 /// wrapper till alla parsers
-type Parser<'T> = Parser of (string -> Result<'T * string>)
+type Parser<'T> = {
+  parseFn: (string -> Result<'T * string>)
+  label: ParserLabel
+}
+let printResult result =
+  match result with
+  | Success (x, inp) -> printfn "%A" x
+  | Failure (label, error) -> printfn "Error: Label %s: Error: %s" label error
 /// parsear en char
 let parseChar char =
-  let inF str =
-    if String.IsNullOrEmpty(str) then
-      Failure "Inge mer input"
+  let label = sprintf "%c" char
+  let innerFn input =
+    if String.IsNullOrEmpty(input) then
+      Failure(label, "inge mer input")
     else
-      let first = str.[0]
+      let first = input.[0]
       if first = char then
-        let rest = str.[1..]
+        let rest = input.[1..]
         Success (char, rest)
       else
-        Failure (sprintf "Ville ha %c, fick %c" char first)
-  Parser inF
+        let error = sprintf "Fick %c" first
+        Failure (label, error)
+  {parseFn=innerFn;label=label}
 /// kör en parser med input
-let run p str =
+let run p input =
   // deconstructar parser precis som en (x,y) skulle deconstructa en tuple
-  let (Parser inF) = p
-  inF str
+  let innerFn = p.parseFn
+  innerFn input
+  
+let getLabel p = p.label
+let setLabel p newLabel =
+  let newInnerFn input =
+    let result = p.parseFn input
+    match result with
+    | Success s -> Success s
+    | Failure (oldLabel, err) -> Failure (newLabel, err)
+  {parseFn=newInnerFn;label=newLabel}
+let ( <?> ) = setLabel
+ 
 /// input är diagonalt (a -> parser<b>)
 /// output är horisontell (parser<a> -> parser<b>)
 /// tar en f som gör en p, en p och kör
 /// p och skickar output av p till f
 let bindParser f p =
-  let inF str =
-    let result1 = run p str
+  let label = "dno"
+  let innerFn input =
+    let result1 = run p input
     match result1 with
-    | Failure err -> Failure err
+    | Failure (label, err) -> Failure (label, err)
     | Success (firstIn, restIn) ->
       // kör f för att få en ny parser
       let p2 = f firstIn
       // kör parsern med resten av input
       run p2 restIn
-  Parser inF
+  {parseFn=innerFn;label=label}
 /// infix av bindParser
 let ( >>= ) p f = bindParser f p
 /// transforma en normal value till parser, t.ex a -> parser<a>
 let returnParser a =
-  let inF b = Success (a, b)
-  Parser inF
+  let label = sprintf "%A" a
+  let innerFn b = Success (a, b)
+  {parseFn=innerFn;label=label}
 /// mappar a -> b till parser<a> -> parser<b>
 let mapParse f = bindParser (f >> returnParser)
 /// infix av mapParse
@@ -52,6 +76,7 @@ let ( <!> ) = mapParse
 /// infix av mapParse men reversead för pipelineing
 let ( |>> ) x f = mapParse f x
 /// transformar en parser som har en funktion, t.ex parser<a->b> -> parser<a> -> parser<b>
+/// "applyar" en wrappad funktion till en wrappad value
 let applyParser fP xP =
   fP >>= (fun f ->
   xP >>= (fun x ->
@@ -67,24 +92,29 @@ let andThen p1 p2 =
 /// infix för andThen
 let ( .>>. ) = andThen
 let orElse p1 p2 =
-  let inF str =
-    let result1 = run p1 str
+  let label = sprintf "%s orElse %s" (getLabel p1) (getLabel p2)
+  let innerFn input =
+    let result1 = run p1 input
     match result1 with
-    | Success _ -> result1
-    | Failure _ ->
-      let result2 = run p2 str
-      result2
-  Parser inF
+    | Success result -> result1
+    | Failure (_,err) ->
+      let result2 = run p2 input
+      match result2 with
+      | Success _ -> result2
+      | Failure (_,err) -> Failure (label, err)
+  {parseFn=innerFn;label=label}
 /// infix för orElse
 let ( <|> ) = orElse
 // väljer en parser från listan
-let chooseOne ps =
+let choice ps =
   List.reduce (<|>) ps
 // väljer en char från listan
 let anyOf chars =
+  let label = sprintf "anyOf %A" chars
   chars
   |> List.map parseChar
-  |> chooseOne
+  |> choice
+  <?> label
 /// tar en lista med parsers och mappar till en parser av en lista
 let rec seqParsers ps =
   // todo: hemmagjort consfunktion, kolla om det går att göra snyggae
@@ -111,27 +141,22 @@ let rec parseZeroOrMore p input =
     (values, restOut)
 /// matchar 0 eller mer av en parser
 let many p =
-  let rec inF str =
-    // parsea input och wrappa i success
-    Success(parseZeroOrMore p str)
-  Parser inF
+  let label = sprintf "many %s" (getLabel p)
+  let rec innerFn input = Success (parseZeroOrMore p input)
+  {parseFn=innerFn;label=label}
 /// matchar minst en av en parser
 let many1 p =
-  let rec inF str =
-    let result1 = run p str
-    match result1 with
-    | Failure err -> Failure err
-    | Success (x, restIn) ->
-      let(xs, restOut) =
-        parseZeroOrMore p restIn
-      let values = x::xs
-      Success (values, restOut)
-  Parser inF
+  let label = sprintf "many1 %s" (getLabel p)
+  p      >>= (fun head ->
+  many p >>= (fun tail ->
+    returnParser (head::tail)))
+  <?> label
 /// parsear något optional -> some <|> none
-let oneOrZero p =
+let opt p =
+  let label = sprintf "opt %s" (getLabel p)
   let some = p |>> Some
   let none = returnParser None
-  some <|> none
+  some <|> none <?> label
 /// behåller vänster
 let (.>>) p1 p2 = p1 .>>. p2 |> mapParse (fun (a,_) -> a)
 /// behåller höger
@@ -174,5 +199,5 @@ let parseInt =
     | None -> i
   let digit = anyOf ['0'..'9']
   let digits = many1 digit
-  oneOrZero (parseChar '-') .>>. digits
+  opt (parseChar '-') .>>. digits
   |>> resultToInt

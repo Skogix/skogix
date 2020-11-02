@@ -22,6 +22,7 @@ let main _ =
     testCommands
     |> List.map Parser.Core.parseString
   let parsers = createParsers testCommands
+  printfn "%A" parsers
   
   
   
