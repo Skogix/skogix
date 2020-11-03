@@ -1,16 +1,13 @@
 ﻿using System;
-using Game;
-using Microsoft.FSharp.Control;
 using Microsoft.FSharp.Core;
-using static Game.Init;
 
 namespace CProgram
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            var gameInit = Init.gameCreator;
+            /*var gameInit = Init.gameCreator;
             gameInit.addOutputSource(new Renderer(FSharpFunc<string, Unit>.FromConverter(Renderer), FSharpFunc<string, Unit>.FromConverter(Renderer) ));
             gameInit.addComponentType<TestGameComponent>();
             gameInit.addComponentType<CSharpComponent>();
@@ -20,7 +17,7 @@ namespace CProgram
             var output = gameEngineRenderer;
             output.Debug.Invoke("Test");
             output.Game.Invoke("Test");
-            huhu.Invoke("test");
+            huhu.Invoke("test");*/
         }
 
 

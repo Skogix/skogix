@@ -5,8 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\GameEngine\GameEngine.fsproj" />
-      <ProjectReference Include="..\Parser\Parser.fsproj" />
+        <Compile Include="Core.fs" />
     </ItemGroup>
 
 </Project>

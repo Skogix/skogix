@@ -5,4 +5,13 @@
         <RootNamespace>GameEngine</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Compile Include="Domain.fs" />
+      <Compile Include="Common.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Skogix\Skogix.fsproj" />
+    </ItemGroup>
+
 </Project>

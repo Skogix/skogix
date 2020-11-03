@@ -1,4 +1,4 @@
-module Parser.SSharp
+module internal Parser.SSharp
 open System
 open Parser.Core
 type SkogixValue =

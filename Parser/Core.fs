@@ -1,4 +1,4 @@
-﻿module Parser.Core
+﻿module internal Parser.Core
 open System
 type ParserLabel = string
 type ParserError = string
