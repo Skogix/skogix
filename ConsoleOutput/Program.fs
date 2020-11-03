@@ -36,7 +36,7 @@ let main _ =
   let skogixIO, huhu = gameInit outputStream
   
   let game = Skogix(skogixIO)
-  game.input.Post (Print "Hello world!")
+  game.input.Post (PrintWorldState)
   
 //  let init = new gameInit(outputStream)
 //  let game = new GameEngine.Game.Game(init)

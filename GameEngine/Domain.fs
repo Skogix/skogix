@@ -17,6 +17,7 @@ type Direction =
 type Command =
   | Move of Direction
   | Print of string
+  | PrintWorldState
 type InputState = Command list
 type AcceptedInputs = InputState list
 type OutputState = {
