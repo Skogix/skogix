@@ -8,7 +8,7 @@ open SkogixIO
 
 let gameInit (outputStream:OutputStream) =
   let input, inputStream =
-    let event = Event<Command>()
+    let event = Event<InputCommand>()
     event.Trigger, event.Publish
   let skogixIO = SkogixIO outputStream
   (skogixIO, input)

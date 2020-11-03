@@ -22,8 +22,8 @@ let main _ =
   
   let gameRenderer world = printfn "ProgramGameRender::: %A" world
   let debugRenderer string = printfn "ProgramDebugRenderer::: %s" string
-  let mutable availableCommands:Command list = []
-  let getInputs (commands:Command list) =
+  let mutable availableCommands:InputCommand list = []
+  let getInputs (commands:InputCommand list) =
     availableCommands <- commands
     printfn "InputFunctions: %A" availableCommands
     ()
@@ -36,7 +36,13 @@ let main _ =
   let skogixIO, huhu = gameInit outputStream
   
   let game = Skogix(skogixIO)
-  game.input.Post (PrintWorldState)
+//  game.input.Post (PrintWorldState)
+  game.input.Post (Move Up)
+  game.input.Post (Move Up)
+  Threading.Thread.Sleep 2000
+  printfn "sover 2 sek för output"
+  game.input.Post (InputCommand.PrintWorldState)
+//  game.input.Post (PrintWorldState)
   
 //  let init = new gameInit(outputStream)
 //  let game = new GameEngine.Game.Game(init)

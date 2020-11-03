@@ -7,18 +7,18 @@ type Player = {
 type GameState = {
   Player: Player
 }
-type World =
-  | GameState of GameState
+type World = {
+   Game: GameState
+   }
 type Direction =
   | Up
   | Down
   | Left
   | Right
-type Command =
+type InputCommand =
   | Move of Direction
-  | Print of string
   | PrintWorldState
-type InputState = Command list
+type InputState = InputCommand list
 type AcceptedInputs = InputState list
 type OutputState = {
   World: World
@@ -27,5 +27,5 @@ type OutputState = {
 type OutputStream = {
   Renderer: (World -> unit)
   Debug: (string -> unit)
-  InputFunctions: (Command list -> unit)
+  InputFunctions: (InputCommand list -> unit)
 }
