@@ -15,9 +15,12 @@ type Skogix (skogixIO:SkogixIO.SkogixIO) =
     let debug str = skogixIO.debug (sprintf "Skogix::: %s" str)
     let rec loop () = async {
       let! mail = inbox.Receive()
+      mail
+      |> this.CommandAndReply
+      |> Async.RunSynchronously
+      |> printfn "%A"
       let reply = this.CommandAndReply mail
 //      this.Command mail
-      debug1 "får tillbaka: " reply
       skogixIO.outputStream.Renderer reply
       return! loop ()
     }

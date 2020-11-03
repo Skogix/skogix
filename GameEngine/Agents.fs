@@ -1,4 +1,5 @@
 module GameEngine.Agents
+open System.Collections.Generic
 open Common
 open GameEngine
 open GameEngine.Domain
@@ -7,10 +8,11 @@ open GameEngine.GameInit
 type WorldCommand =
   | Get
   | UpdatePlayer of Player
-type WorldAgent(initWorld:World) =  
+type WorldAgent(initWorld:World) =
   member this.agent = MailboxProcessor<WorldCommand * AsyncReplyChannel<World>>.Start(fun inbox ->
-    let rec loop (state:World) = async {
+    let rec loop (inputState:World) = async {
       let! mail, rc = inbox.Receive()
+      let state = {inputState with Id = inputState.Id + 1} 
       match mail with
       | Get -> rc.Reply(state)
       | UpdatePlayer x ->
@@ -20,9 +22,10 @@ type WorldAgent(initWorld:World) =
         let newWorld = {state with Game = newGameState}
         
         printfn "till %A" newWorld
+        let! reply = newWorld
         rc.Reply(newWorld)
         return! loop (newWorld)
-      return! loop (state)
+      return! loop (inputState)
     }
     loop initWorld
     )
@@ -43,11 +46,11 @@ type CommandAgent(output:OutputStream, worldAgent:WorldAgent)=
           let reply = worldAgent.agent.PostAndReply (fun rc -> (Get, rc))
           rc.Reply(reply)
         | Move dir ->
-          let world = worldpostandreply Get
+          let! world = worldpostandreply Get
           let newPos = skogixMove dir world.Game.Player.Position
           let newPlayer = {world.Game.Player with Position = newPos}
           let newWorld = worldpostandreply (UpdatePlayer newPlayer)
-          rc.Reply(newWorld)
+          do rc.Reply(newWorld)
       return! loop ()
     }
     loop ()

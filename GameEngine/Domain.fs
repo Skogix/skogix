@@ -4,11 +4,13 @@ type Position = {x:int;y:int}
 type Player = {
   Position: Position
 }
-type GameState = {
+type Game = {
   Player: Player
 }
+type WorldId = int
 type World = {
-   Game: GameState
+   Id: WorldId
+   Game: Game
    }
 type Direction =
   | Up

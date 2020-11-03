@@ -10,11 +10,12 @@ let inputFunctionInit: InputCommand list = [
 let playerStateInit: Player = {
   Position = {x=3;y=3}
 }
-let gameStateInit: GameState = {
+let gameStateInit: Game = {
   Player = playerStateInit
 }
 let initWorld: World = {
   Game = gameStateInit
+  Id = 0
 }
 let debug = printfn "GameEngine::: %s"
 
