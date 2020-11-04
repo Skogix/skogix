@@ -1,33 +1,18 @@
 module GameEngine.Domain
-open Skogix.Core
-type Position = {x:int;y:int}
 type Player = {
-  Position: Position
+  Count: int
 }
 type Game = {
   Player: Player
 }
-type WorldId = int
-type World = {
-   Id: WorldId
-   Game: Game
-   }
-type Direction =
-  | Up
-  | Down
-  | Left
-  | Right
 type InputCommand =
-  | Move of Direction
-  | PrintWorldState
-type InputState = InputCommand list
-type AcceptedInputs = InputState list
-type OutputState = {
-  World: World
-  AcceptedInputs: AcceptedInputs
-}
+  | InputAddOne 
+type InputCommands = InputCommand List
 type OutputStream = {
-  Renderer: (World -> unit)
+  Game: (Game -> unit)
   Debug: (string -> unit)
-  InputFunctions: (InputCommand list -> unit)
+  InputFunctions: (InputCommands -> unit)
+}
+type State = {
+  Game: Game
 }

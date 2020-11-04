@@ -1,21 +1,17 @@
 module GameEngine.Common
 open Domain
 
-let inputFunctionInit: InputCommand list = [
-  Move Up
-  Move Down
-  Move Left
-  Move Right
+let inputFunctionInit: InputCommands= [
+  InputAddOne
 ]
 let playerStateInit: Player = {
-  Position = {x=3;y=3}
+  Count = 0
 }
-let gameStateInit: Game = {
+let gameInit: Game = {
   Player = playerStateInit
 }
-let initWorld: World = {
-  Game = gameStateInit
-  Id = 0
+let stateInit:State = {
+  Game = gameInit
 }
 let debug = printfn "GameEngine::: %s"
 

@@ -1,11 +1,9 @@
 ﻿// Learn more about F# at http://fsharp.org
 
 open System
-open GameEngine
 open GameEngine.Domain
 open GameEngine.Game
 open GameEngine.GameInit
-open GameEngine.SkogixIO
 type Player = {
   mutable Name: string
 }
@@ -26,22 +24,21 @@ let main _ =
   let getInputs (commands:InputCommand list) =
     availableCommands <- commands
     printfn "InputFunctions: %A" availableCommands
-    ()
     
   
-  let outputStream:OutputStream = { Renderer = gameRenderer
+  let outputStream:OutputStream = { Game = gameRenderer
                                     InputFunctions = getInputs
                                     Debug = debugRenderer }
   
   let skogixIO, huhu = gameInit outputStream
   
   let game = Skogix(skogixIO)
-//  game.input.Post (PrintWorldState)
-  game.input.Post (Move Up)
-  game.input.Post (Move Up)
-  Threading.Thread.Sleep 2000
-  printfn "sover 2 sek för output"
-  game.input.Post (InputCommand.PrintWorldState)
+  game.agent.Post InputAddOne
+  game.agent.Post InputAddOne
+//  game.input.Post (Move Up)
+//  Threading.Thread.Sleep 2000
+//  printfn "sover 2 sek för output"
+//  game.input.Post (InputCommand.PrintWorldState)
 //  game.input.Post (PrintWorldState)
   
 //  let init = new gameInit(outputStream)
