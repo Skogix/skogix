@@ -6,16 +6,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Include="Domain.fs" />
-      <Compile Include="Common.fs" />
-      <Compile Include="SkogixIO.fs" />
-      <Compile Include="GameInit.fs" />
-      <Compile Include="Agents.fs" />
-      <Compile Include="Game.fs" />
+      <ProjectReference Include="..\Skogix\Skogix.fsproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Skogix\Skogix.fsproj" />
+      <Compile Include="GameEngineDomain.fs" />
+      <Compile Include="IO.fs" />
     </ItemGroup>
 
 </Project>

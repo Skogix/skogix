@@ -9,4 +9,8 @@
       <ProjectReference Include="..\Parser\Parser.fsproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Include="Game.fs" />
+    </ItemGroup>
+
 </Project>
