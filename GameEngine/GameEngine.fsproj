@@ -9,9 +9,4 @@
       <ProjectReference Include="..\Skogix\Skogix.fsproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Compile Include="GameEngineDomain.fs" />
-      <Compile Include="IO.fs" />
-    </ItemGroup>
-
 </Project>
